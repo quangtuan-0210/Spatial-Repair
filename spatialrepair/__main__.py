@@ -95,7 +95,7 @@ def main():
     for name in ("detect", "repair"):
         p = sub.add_parser(name)
         p.add_argument("--qid", help="mã câu FloodSQL-Bench, vd L4_0006")
-        p.add_argument("--store", default="qwen35", help="kho SQL ban đầu trong bench/ (qwen35, mut, sim)")
+        p.add_argument("--store", default="qwen35", help="kho SQL ban đầu trong bench/ (qwen35 hoặc mut)")
         p.add_argument("--sql"); p.add_argument("--question")
         p.add_argument("--kg", default="spatial", choices=["spatial", "relational"])
         p.add_argument("--no-question", action="store_true", help="không đối chiếu câu hỏi (chỉ luật KG)")

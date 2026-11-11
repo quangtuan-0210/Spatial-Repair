@@ -29,7 +29,9 @@ Kết quả đầy đủ (theo mức L0–L5, theo loại lỗi, độ trễ, to
 3. **Sinh ứng viên sửa** cục bộ cho từng lỗi, tìm kiếm chùm tối đa 4 bước.
 4. **Kiểm chứng**: chỉ nhận bản sửa hết lỗi theo KG và chạy được trên DuckDB; không có thì **từ chối**, giữ câu gốc.
 
-Thiết kế KG: `docs/kg_design.md`. Ghi chú phát hiện / sửa: `docs/detection_notes.md`, `docs/repair_notes.md`.
+Đồ thị tri thức chỉ được dựng từ metadata của bộ dữ liệu, dữ liệu thật trong DuckDB và tài liệu hàm DuckDB Spatial,
+không dùng SQL chuẩn (tránh rò rỉ đáp án). Bản KG không gian có 834 nút: bảng, cột, nguồn hình học, hệ tọa độ,
+36 hàm không gian, hệ mã vùng, 388 mã bang / quận, miền giá trị và luật dùng chung.
 
 ## Các loại lỗi
 
@@ -57,11 +59,10 @@ spatialrepair/          MÃ NGUỒN
 ├── baselines/          phương pháp đối chứng: luật viết tay, LLM self-refine, LLM exec-feedback
 └── __main__.py         dòng lệnh: python -m spatialrepair ...
 kg/                     KG đã dựng: kg_spatial.json (834 nút), kg_relational.json (289 nút)
-data_source/            phần gốc FloodSQL-Bench: 443 câu hỏi + SQL chuẩn + metadata (không gồm file parquet)
-bench/                  kho SQL ban đầu: initial_qwen35 (LLM sinh), initial_mut (1355 đột biến có nhãn), đột biến
+data_source/            FloodSQL-Bench: 443 câu hỏi + SQL chuẩn + metadata 10 bảng (không gồm file parquet)
+bench/                  kho SQL ban đầu: initial_qwen35 (Qwen3.5 sinh), initial_mut (1355 đột biến có nhãn)
 analysis/tie_info.json  thông tin câu có kết quả đồng hạng (dùng khi chấm)
-results/exp/            kết quả 6 phương pháp trên từng kho (mỗi câu một dòng jsonl + summary.md)
-docs/                   thiết kế KG, ghi chú phát hiện và sửa
+results/exp/            kết quả 6 phương pháp trên 2 kho (mỗi câu một dòng jsonl + summary.md)
 tests/                  kiểm tra nhanh bộ phát hiện
 ```
 
@@ -173,4 +174,4 @@ Các phương pháp `self_refine` và `exec_feedback` nằm trong `spatialrepair
 ## Dữ liệu và giấy phép
 
 FloodSQL-Bench thuộc về tác giả gốc (arXiv 2512.12084), giấy phép trong `data_source/LICENSE_FloodSQL-Bench`.
-Thư mục `data_source/` giữ nguyên các file gốc, chỉ thêm `floodsql_443.jsonl` (gộp 443 câu) và `paths.json`.
+`data_source/benchmark/floodsql_443.jsonl` gộp 443 câu từ bộ gốc; `data_source/paths.json` chỉ đường tới các file parquet.

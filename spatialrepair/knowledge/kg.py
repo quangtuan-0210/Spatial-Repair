@@ -1,7 +1,7 @@
 """Đồ thị tri thức (KG) cho Spatial SQL trên FloodSQL-Bench.
 
 Dựng từ: metadata_parquet.json (+ tùy chọn: dữ liệu thật trong DuckDB) + danh mục hàm DuckDB Spatial viết tay.
-KHÔNG dùng SQL chuẩn của benchmark (tránh rò rỉ đáp án). Thiết kế: docs/kg_design.md
+KHÔNG dùng SQL chuẩn của benchmark (tránh rò rỉ đáp án). Thiết kế: xem README.md
 """
 import json, os, re
 from collections import defaultdict
