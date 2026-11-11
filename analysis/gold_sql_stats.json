@@ -1,0 +1,142 @@
+{
+ "n": 443,
+ "by_level": {
+  "L0": 50,
+  "L1": 100,
+  "L2": 150,
+  "L3": 50,
+  "L4": 43,
+  "L5": 50
+ },
+ "uses_spatial_by_level": {
+  "L0": 12,
+  "L1": 2,
+  "L2": 150,
+  "L3": 1,
+  "L4": 43,
+  "L5": 50
+ },
+ "fn_query_count": {
+  "ST_IsValid": 235,
+  "ST_Point": 113,
+  "ST_Intersects": 104,
+  "ST_Contains": 73,
+  "ST_Within": 56,
+  "ST_Area": 39,
+  "ST_Intersection": 28,
+  "ST_Overlaps": 17,
+  "ST_Touches": 12,
+  "ST_XMax": 2,
+  "ST_Centroid": 1,
+  "ST_Y": 1
+ },
+ "fn_by_level": {
+  "ST_IsValid": {
+   "L0": 11,
+   "L2": 133,
+   "L3": 1,
+   "L4": 40,
+   "L5": 50
+  },
+  "ST_Point": {
+   "L2": 84,
+   "L4": 19,
+   "L5": 10
+  },
+  "ST_Intersects": {
+   "L2": 42,
+   "L4": 27,
+   "L5": 35
+  },
+  "ST_Contains": {
+   "L2": 54,
+   "L4": 19
+  },
+  "ST_Within": {
+   "L2": 44,
+   "L5": 12
+  },
+  "ST_Area": {
+   "L0": 10,
+   "L2": 22,
+   "L5": 7
+  },
+  "ST_Intersection": {
+   "L2": 22,
+   "L5": 6
+  },
+  "ST_Overlaps": {
+   "L2": 7,
+   "L5": 10
+  },
+  "ST_Touches": {
+   "L2": 3,
+   "L5": 9
+  },
+  "ST_XMax": {
+   "L0": 1,
+   "L1": 1
+  },
+  "ST_Centroid": {
+   "L1": 1
+  },
+  "ST_Y": {
+   "L1": 1
+  }
+ },
+ "st_point_lon_lat": 113,
+ "st_point_lat_lon": 0,
+ "contains_point_2nd": 69,
+ "contains_point_1st": 0,
+ "within_point_1st": 42,
+ "area_of_intersection": 28,
+ "unit_conversion_hint": 0,
+ "geography_cast": 0,
+ "fld_zone_filter": 10,
+ "fld_zone_exclude_X": 4,
+ "left_geoid_5": 119,
+ "geoid_like": 57,
+ "statefp_filter": 307,
+ "cast_double": 56,
+ "count_distinct": 200,
+ "is_not_null": 129,
+ "join_on_geoid": 128,
+ "has_cte": 19,
+ "point_polygon_join": 113,
+ "polygon_polygon_join": 134,
+ "tables_freq": {
+  "census_tracts": 198,
+  "floodplain": 143,
+  "claims": 108,
+  "county": 93,
+  "zcta": 87,
+  "nri": 82,
+  "hospitals": 81,
+  "svi": 71,
+  "schools": 60,
+  "cre": 54
+ },
+ "n_tables_by_level": {
+  "L0": {
+   "1": 50
+  },
+  "L1": {
+   "2": 100
+  },
+  "L2": {
+   "2": 140,
+   "1": 10
+  },
+  "L3": {
+   "3": 48,
+   "4": 2
+  },
+  "L4": {
+   "3": 37,
+   "4": 6
+  },
+  "L5": {
+   "3": 50
+  }
+ }
+}

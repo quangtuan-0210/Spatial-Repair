@@ -1,0 +1,4148 @@
+{
+  "census_tracts": {
+    "file": "census_tracts_tx_fl_la.parquet",
+    "row_count": 13444,
+    "schema": [
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "11-digit census tract identifier composed of STATEFP, COUNTYFP, and TRACTCODE. This field serves as the primary join key for connecting tract-level datasets such as NRI, SVI, CRE, and NFIP claims, and county-level datasets such as county and schools.",
+        "indexed": true
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the U.S. state containing the tract. This field is mainly used for filtering or grouping results by state (e.g., restricting queries to Texas, Florida, or Louisiana), but it does not participate in cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "COUNTYFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "3-digit county FIPS code identifying the county within a state. Used primarily for grouping or summarizing results at the county level, rather than for direct joins across tables.",
+        "indexed": true
+      },
+      {
+        "column_name": "NAME",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Human-readable census tract label (e.g., 'Tract 1234.02'). This field provides a descriptive name for reporting or visualization purposes, but is not used for joins or aggregations.",
+        "indexed": false
+      },
+      {
+        "column_name": "geometry",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Polygon geometry representing the spatial boundary of each census tract, stored in OGC:CRS84. This field serves as the spatial join key for overlay operations with polygon layers (floodplain, county, ZCTA) and point layers (hospitals, schools). ",
+        "indexed": true,
+        "avoid_select_star": true
+      }
+    ],
+    "sample_rows": [
+      {
+        "GEOID": "48141000401",
+        "STATEFP": "48",
+        "COUNTYFP": "141",
+        "NAME": "4.01",
+        "geometry": "BLOB(5133 bytes)"
+      },
+      {
+        "GEOID": "48439106515",
+        "STATEFP": "48",
+        "COUNTYFP": "439",
+        "NAME": "1065.15",
+        "geometry": "BLOB(2845 bytes)"
+      },
+      {
+        "GEOID": "48219950400",
+        "STATEFP": "48",
+        "COUNTYFP": "219",
+        "NAME": "9504",
+        "geometry": "BLOB(5485 bytes)"
+      }
+    ],
+    "_meta": "Polygon-based spatial layer representing U.S. Census tracts, Each record corresponds to a single tract area defined by the U.S. Census Bureau. This table supports key-based joins via the 11-digit GEOID and spatial joins with polygon-based layers and point-based layers through its geometry field. ",
+    "key_identifier": [
+      "GEOID"
+    ],
+    "spatial_identifier": [
+      "geometry"
+    ],
+    "layer_category": "polygon + tract-level"
+  },
+  "claims": {
+    "file": "claims_tx_fl_la.parquet",
+    "row_count": 1316689,
+    "schema": [
+      {
+        "column_name": "id",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Unique NFIP claim record identifier. Each entry corresponds to a single insurance claim in the dataset.",
+        "indexed": false
+      },
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACTCODE. Serves as the primary join key for connecting to tract-level datasets such as census_tracts, NRI, SVI, and CRE, and can also be used for county-level aggregations through GEOID prefix joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the U.S. state where the claim originated. Used for filtering or grouping results by state, but not for cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "dateOfLoss",
+        "column_type": "DATE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Date of the flood insurance claim loss event, recorded in ISO format (e.g., '2000-10-03T00:00:00'). Indicates when the flood damage occurred.",
+        "indexed": false
+      },
+      {
+        "column_name": "amountPaidOnBuildingClaim",
+        "column_type": "DECIMAL(10,2)",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Insurance payout amount (in USD) for structural building damage. Used in assessing physical exposure and structural loss severity.",
+        "indexed": false
+      },
+      {
+        "column_name": "amountPaidOnContentsClaim",
+        "column_type": "DECIMAL(8,2)",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Insurance payout amount (in USD) for damage to building contents. Represents internal property losses within the insured structure.",
+        "indexed": false
+      },
+      {
+        "column_name": "amountPaidOnIncreasedCostOfComplianceClaim",
+        "column_type": "DECIMAL(8,2)",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Insurance payout amount (in USD) for Increased Cost of Compliance (ICC). Covers expenses related to meeting post-flood elevation, relocation, or reconstruction requirements.",
+        "indexed": false
+      },
+      {
+        "column_name": "geometry",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Point geometry representing the claim location, stored in OGC:CRS84. Although geometry is available, this table is not used for spatial joins; its joins are purely key-based via the 11-digit GEOID.",
+        "indexed": true,
+        "avoid_select_star": true
+      }
+    ],
+    "sample_rows": [
+      {
+        "id": "BLOB(16 bytes)",
+        "GEOID": "22071005601",
+        "STATEFP": "22",
+        "dateOfLoss": "2005-08-29T00:00:00",
+        "amountPaidOnBuildingClaim": 250000.0,
+        "amountPaidOnContentsClaim": 16600.0,
+        "amountPaidOnIncreasedCostOfComplianceClaim": 0.0,
+        "geometry": "BLOB(21 bytes)"
+      },
+      {
+        "id": "BLOB(16 bytes)",
+        "GEOID": "22019001700",
+        "STATEFP": "22",
+        "dateOfLoss": "2020-10-09T00:00:00",
+        "amountPaidOnBuildingClaim": 1405.38,
+        "amountPaidOnContentsClaim": 0.0,
+        "amountPaidOnIncreasedCostOfComplianceClaim": 0.0,
+        "geometry": "BLOB(21 bytes)"
+      },
+      {
+        "id": "BLOB(16 bytes)",
+        "GEOID": "22005030501",
+        "STATEFP": "22",
+        "dateOfLoss": "2016-08-15T00:00:00",
+        "amountPaidOnBuildingClaim": 89509.7,
+        "amountPaidOnContentsClaim": 0.0,
+        "amountPaidOnIncreasedCostOfComplianceClaim": 0.0,
+        "geometry": "BLOB(21 bytes)"
+      }
+    ],
+    "_meta": "Key-based table containing National Flood Insurance Program (NFIP) flood claim records. Each record represents a single insurance claim event linked to a census tract. All joins are key-based using the 11-digit GEOID; spatial joins are not applicable. ",
+    "key_identifier": [
+      "GEOID"
+    ],
+    "spatial_identifier": [],
+    "layer_category": "tract-level"
+  },
+  "county": {
+    "file": "county_tx_fl_la.parquet",
+    "row_count": 385,
+    "schema": [
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "5-digit county FIPS code composed of the 2-digit STATEFP and 3-digit COUNTYFP. Serves as the primary join key for county-level aggregations and joins with other tables such as NFIP claims, hospitals, census tracts, NRI, SIV, and CRE. Used in both direct joins and prefix-based joins derived from tract GEOIDs.",
+        "indexed": true
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the U.S. state containing the county. Mainly used for filtering or grouping results by state (e.g., Texas, Florida, or Louisiana), but not for cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "COUNTYFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "3-digit county FIPS code identifying the county within its state. Used primarily for summarization or grouping within a state, but not for key-based joins across tables.",
+        "indexed": true
+      },
+      {
+        "column_name": "NAME",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Official county name (e.g., 'Harris', 'Orleans', 'Palm Beach'). Used as a human-readable label in reporting or visualization outputs, but not as a join key.",
+        "indexed": false
+      },
+      {
+        "column_name": "geometry",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Polygon geometry representing county boundaries, stored in OGC:CRS84. Serves as the spatial join key for overlay operations with polygon layers (floodplain, census tracts, ZCTA) and point layers (hospitals, schools). ",
+        "indexed": true,
+        "avoid_select_star": true
+      }
+    ],
+    "sample_rows": [
+      {
+        "GEOID": "48089",
+        "STATEFP": "48",
+        "COUNTYFP": "089",
+        "NAME": "Colorado",
+        "geometry": "BLOB(54941 bytes)"
+      },
+      {
+        "GEOID": "48039",
+        "STATEFP": "48",
+        "COUNTYFP": "039",
+        "NAME": "Brazoria",
+        "geometry": "BLOB(88061 bytes)"
+      },
+      {
+        "GEOID": "22063",
+        "STATEFP": "22",
+        "COUNTYFP": "063",
+        "NAME": "Livingston",
+        "geometry": "BLOB(76413 bytes)"
+      }
+    ],
+    "_meta": "County-level administrative polygon layer representing U.S. counties. Each record corresponds to a single county area within a state. This table supports both key-based joins via the 5-digit GEOID and spatial joins via the geometry field. ",
+    "key_identifier": [
+      "GEOID"
+    ],
+    "spatial_identifier": [
+      "geometry"
+    ],
+    "layer_category": "polygon + county-level"
+  },
+  "cre": {
+    "file": "cre_tx_fl_la.parquet",
+    "row_count": 13444,
+    "schema": [
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACT code. Serves as the primary join key linking CRE data to tract-level datasets such as census_tracts, NRI, SVI, and NFIP claims.",
+        "indexed": true
+      },
+      {
+        "column_name": "GEO_ID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Full Census geographic identifier including a prefix (e.g., '1400000US12001000201'). Provided for reference only and not used in joins.",
+        "indexed": false
+      },
+      {
+        "column_name": "STATE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Full state name corresponding to the tract. Used as a descriptive field for filtering or reporting.",
+        "indexed": false
+      },
+      {
+        "column_name": "COUNTY",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "County name corresponding to the tract. Used as a descriptive attribute, not for joins.",
+        "indexed": false
+      },
+      {
+        "column_name": "TRACT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "6-digit census tract code within a county. Not unique at the national level; the full GEOID should be used for joins.",
+        "indexed": false
+      },
+      {
+        "column_name": "NAME",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "WATER_TRACT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag indicating whether a census tract is composed entirely of water. A value of 1 denotes a tract with no resident population; 0 denotes tracts with land area and population.",
+        "indexed": false
+      },
+      {
+        "column_name": "POPUNI",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Population universe used in tract-level resilience estimation. Represents the total number of individuals included in the CRE modeling population.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED0_E",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated number of individuals with zero components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED0_M",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for PRED0_E, representing uncertainty in the estimated number of individuals with zero vulnerability components.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED0_PE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Percentage of individuals with zero components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED0_PM",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error (percentage points) for the percentage of individuals with zero components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED12_E",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated number of individuals with one or two components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED12_M",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for PRED12_E, representing uncertainty in the estimated number of individuals with one or two vulnerability components.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED12_PE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Percentage of individuals with one or two components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED12_PM",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error (percentage points) for the percentage of individuals with one or two components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED3_E",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated number of individuals with three or more components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED3_M",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for PRED3_E, representing uncertainty in the estimated number of individuals with three or more vulnerability components.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED3_PE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Percentage of individuals with three or more components of social vulnerability.",
+        "indexed": false
+      },
+      {
+        "column_name": "PRED3_PM",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error (percentage points) for the percentage of individuals with three or more components of social vulnerability.",
+        "indexed": false
+      }
+    ],
+    "sample_rows": [
+      {
+        "GEOID": "22071001745",
+        "GEO_ID": "1400000US22071001745",
+        "STATE": 22,
+        "COUNTY": 71,
+        "TRACT": 1745,
+        "NAME": "Census Tract 17.45, Orleans Parish, Louisiana",
+        "WATER_TRACT": null,
+        "POPUNI": 3203,
+        "PRED0_E": 1418,
+        "PRED0_M": 467,
+        "PRED0_PE": 44.27,
+        "PRED0_PM": 14.58,
+        "PRED12_E": 947,
+        "PRED12_M": 520,
+        "PRED12_PE": 29.57,
+        "PRED12_PM": 16.23,
+        "PRED3_E": 838,
+        "PRED3_M": 478,
+        "PRED3_PE": 26.16,
+        "PRED3_PM": 14.92
+      },
+      {
+        "GEOID": "48201411100",
+        "GEO_ID": "1400000US48201411100",
+        "STATE": 48,
+        "COUNTY": 201,
+        "TRACT": 411100,
+        "NAME": "Census Tract 4111, Harris County, Texas",
+        "WATER_TRACT": null,
+        "POPUNI": 3409,
+        "PRED0_E": 974,
+        "PRED0_M": 460,
+        "PRED0_PE": 28.57,
+        "PRED0_PM": 13.49,
+        "PRED12_E": 1324,
+        "PRED12_M": 484,
+        "PRED12_PE": 38.84,
+        "PRED12_PM": 14.2,
+        "PRED3_E": 1111,
+        "PRED3_M": 396,
+        "PRED3_PE": 32.59,
+        "PRED3_PM": 11.62
+      },
+      {
+        "GEOID": "48361022302",
+        "GEO_ID": "1400000US48361022302",
+        "STATE": 48,
+        "COUNTY": 361,
+        "TRACT": 22302,
+        "NAME": "Census Tract 223.02, Orange County, Texas",
+        "WATER_TRACT": null,
+        "POPUNI": 3872,
+        "PRED0_E": 1124,
+        "PRED0_M": 460,
+        "PRED0_PE": 29.03,
+        "PRED0_PM": 11.88,
+        "PRED12_E": 2246,
+        "PRED12_M": 493,
+        "PRED12_PE": 58.01,
+        "PRED12_PM": 12.73,
+        "PRED3_E": 502,
+        "PRED3_M": 397,
+        "PRED3_PE": 12.96,
+        "PRED3_PM": 10.25
+      }
+    ],
+    "_meta": "Key-based table representing the Community Resilience Estimates (CRE) dataset published by the U.S. Census Bureau. Provides tract-level measures of population resilience to natural hazards, estimating how well communities can withstand and recover from disasters. This dataset contains no geometry field; all joins are key-based via the 11-digit census tract GEOID.",
+    "key_identifier": [
+      "GEOID"
+    ],
+    "spatial_identifier": [],
+    "layer_category": "tract-level"
+  },
+  "floodplain": {
+    "file": "floodplain_tx_fl_la.parquet",
+    "row_count": 915760,
+    "schema": [
+      {
+        "column_name": "GFID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Unique FEMA floodplain polygon identifier. Serves as an internal region identifier within the floodplain dataset, but is not used for joins across tables.",
+        "indexed": false
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the state containing the floodplain polygon. Used mainly for filtering or grouping results by state, but not for cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "FLD_ZONE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "FEMA Flood Hazard Zone classification (e.g., 'AE', 'VE', 'X', 'AO'). Indicates the level and type of flood risk associated with each polygon. Commonly used for filtering or categorizing flood exposure in spatial analyses.",
+        "indexed": false
+      },
+      {
+        "column_name": "geometry",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Polygon geometry representing FEMA flood hazard boundaries, stored in OGC:CRS84. Serves as the spatial join key for overlay operations with polygon layers (census tracts, ZCTA, county) and point layers (hospitals, schools). Used to determine which geographic regions or facilities fall within flood hazard areas.",
+        "indexed": true,
+        "avoid_select_star": true
+      }
+    ],
+    "sample_rows": [
+      {
+        "GFID": "20110720LOMR",
+        "STATEFP": "12",
+        "FLD_ZONE": "A",
+        "geometry": "BLOB(1126 bytes)"
+      },
+      {
+        "GFID": "20110720LOMR",
+        "STATEFP": "12",
+        "FLD_ZONE": "A",
+        "geometry": "BLOB(630 bytes)"
+      },
+      {
+        "GFID": "6cbe2290-e247-438f-9955-ded90294ecb1",
+        "STATEFP": "12",
+        "FLD_ZONE": "A",
+        "geometry": "BLOB(509 bytes)"
+      }
+    ],
+    "_meta": "FEMA Flood Hazard polygon layer representing physical flood risk zones. Each record corresponds to a FEMA-defined flood hazard area. This table is spatial-only and supports spatial joins through its geometry field, but is not used for key-based joins.",
+    "key_identifier": [],
+    "spatial_identifier": [
+      "geometry"
+    ],
+    "layer_category": "polygon"
+  },
+  "hospitals": {
+    "file": "hospitals_tx_fl_la.parquet",
+    "row_count": 1526,
+    "schema": [
+      {
+        "column_name": "HOSPITAL_ID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Unique identifier for each hospital, assigned by the source dataset. Used to uniquely identify individual healthcare facilities.",
+        "indexed": false
+      },
+      {
+        "column_name": "NAME",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Official name of the hospital. Serves as a descriptive label for reporting and visualization.",
+        "indexed": false
+      },
+      {
+        "column_name": "ADDRESS",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Street address of the hospital. Provides location context for reference or display purposes.",
+        "indexed": false
+      },
+      {
+        "column_name": "CITY",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "City in which the hospital is located, represented in uppercase. Used as an administrative attribute for filtering or grouping by city.",
+        "indexed": false
+      },
+      {
+        "column_name": "STATE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Two-letter U.S. state abbreviation (e.g., 'TX', 'FL', 'LA'). Used to identify the state in which the hospital operates.",
+        "indexed": false
+      },
+      {
+        "column_name": "ZIP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "5-digit postal ZIP code (USPS). Used for filtering or display purposes but not for spatial or key-based joins with ZCTA, since USPS ZIP codes do not align perfectly with Census ZCTA boundaries. ZIP-level relationships should instead be established through spatial joins using hospital coordinates (ST_Point(LON, LAT)) and ZCTA geometry.",
+        "indexed": false
+      },
+      {
+        "column_name": "COUNTY",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Official name of the county where the hospital is located. Used for descriptive or reporting purposes but not for joins.",
+        "indexed": false
+      },
+      {
+        "column_name": "COUNTYFIPS",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "5-digit county FIPS code composed of STATEFP and COUNTYFP, identifying the county associated with each hospital. Serves as the primary key for key-based joins with county-level datasetsand tract-level datasets.",
+        "indexed": true
+      },
+      {
+        "column_name": "LAT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Latitude coordinate in decimal degrees (WGS84). Used with LON to construct spatial points for spatial joins in EPSG:4326.",
+        "indexed": false
+      },
+      {
+        "column_name": "LON",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Longitude coordinate in decimal degrees (WGS84). Used with LAT to construct geometry for spatial joins in EPSG:4326.",
+        "indexed": false
+      },
+      {
+        "column_name": "TYPE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Categorical type of hospital (e.g., 'General Acute Care', 'Psychiatric', 'Critical Access', 'Military'). Used for classification or filtering by hospital category.",
+        "indexed": false
+      },
+      {
+        "column_name": "geometry",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Geometry not stored directly; construct via ST_Point(LON, LAT) (EPSG:4326).",
+        "indexed": true,
+        "avoid_select_star": true
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the U.S. state in which the hospital is located. Used for filtering or aggregation by state, but not for cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "UNIQUE_ID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Synthetic unique identifier generated by concatenating STATEFP, 'hospital', and HOSPITAL_ID. Ensures record-level uniqueness across the combined dataset.",
+        "indexed": false
+      }
+    ],
+    "sample_rows": [
+      {
+        "HOSPITAL_ID": "0196784566",
+        "NAME": "ORLANDO HEALTH HORIZON WEST HOSPITAL",
+        "ADDRESS": "17000 W PORTER RD",
+        "CITY": "WINTER GARDEN",
+        "STATE": "FL",
+        "ZIP": "34787",
+        "COUNTY": "ORANGE",
+        "COUNTYFIPS": "12095",
+        "LAT": 28.458250030000045,
+        "LON": -81.63370111999996,
+        "TYPE": "GENERAL ACUTE CARE",
+        "geometry": "BLOB(0 bytes)",
+        "STATEFP": "12",
+        "UNIQUE_ID": "12_hospital_0196784566"
+      },
+      {
+        "HOSPITAL_ID": "0035832606",
+        "NAME": "UF HEALTH SHANDS REHAB HOSPITAL",
+        "ADDRESS": "4101 NW 89TH BLVD",
+        "CITY": "GAINESVILLE",
+        "STATE": "FL",
+        "ZIP": "32606",
+        "COUNTY": "ALACHUA",
+        "COUNTYFIPS": "12001",
+        "LAT": 29.691603110000074,
+        "LON": -82.43622448999997,
+        "TYPE": "REHABILITATION",
+        "geometry": "BLOB(0 bytes)",
+        "STATEFP": "12",
+        "UNIQUE_ID": "12_hospital_0035832606"
+      },
+      {
+        "HOSPITAL_ID": "0006232771",
+        "NAME": "CENTRAL FLORIDA REGIONAL HOSPITAL",
+        "ADDRESS": "1401 W SEMINOLE BLVD",
+        "CITY": "SANFORD",
+        "STATE": "FL",
+        "ZIP": "32771",
+        "COUNTY": "SEMINOLE",
+        "COUNTYFIPS": "12117",
+        "LAT": 28.814536170000054,
+        "LON": -81.28363206999995,
+        "TYPE": "GENERAL ACUTE CARE",
+        "geometry": "BLOB(0 bytes)",
+        "STATEFP": "12",
+        "UNIQUE_ID": "12_hospital_0006232771"
+      }
+    ],
+    "_meta": "Point-based layer representing hospital facilities across Texas, Florida, and Louisiana. Each record corresponds to a single healthcare facility. This table supports both spatial joins through coordinates (LON, LAT) and key-based joins with schools via ZIP, with county-level and tract-level datasets via the 5-digit COUNTYFIPS code, Geometry can be constructed dynamically using ST_Point(LON, LAT) in WGS84 (EPSG:4326).",
+    "key_identifier": [
+      "COUNTYFIPS",
+      "ZIP"
+    ],
+    "spatial_identifier": [
+      "LAT",
+      "LON"
+    ],
+    "layer_category": "point + ZIP-level"
+  },
+  "nri": {
+    "file": "nri_tx_fl_la.parquet",
+    "row_count": 13373,
+    "schema": [
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACT code. Serves as the primary join key linking NRI data to tract-level datasets such as census_tracts, SVI, CRE, and NFIP claims.",
+        "indexed": true
+      },
+      {
+        "column_name": "STATE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Two-letter state abbreviation (e.g., 'TX', 'FL', 'LA'). Used primarily for filtering or summarization by state.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EVNTS",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Number of observed or modeled coastal flood events within the tract, derived from FEMA NRI event records.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_AFREQ",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Average annual frequency of coastal flood events estimated from historical and modeled data.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EXP_AREA",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated land area (in square meters) expected to be affected by coastal flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EXPB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected exposure value of buildings to coastal flooding, expressed in U.S. dollars.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EXPP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected exposure value of population to coastal flooding, represented as a monetized equivalent.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EXPPE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected population exposure to coastal flooding, measured as the number of residents affected.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EXPT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected transportation asset exposure to coastal flooding, representing potential impact on roads and bridges.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_HLRB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Historical loss ratio for buildings due to coastal flooding, representing the fraction of asset value lost.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_HLRP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Historical loss ratio for population impacts (e.g., fatalities, injuries) due to coastal flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_HLRR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EALB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss for buildings due to coastal flooding, expressed in U.S. dollars.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EALP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss for population due to coastal flooding, incorporating fatalities, injuries, or monetized equivalents.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EALPE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EALT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EALS",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss adjusted for social vulnerability under coastal flooding scenarios.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_EALR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss adjusted for community resilience under coastal flooding scenarios.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_ALRB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_ALRP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_ALR_NPCTL",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_RISKV",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Continuous numeric risk value underlying the rating and score for coastal flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_RISKS",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Normalized coastal flood risk score ranging from 0 to 100; higher values indicate greater relative risk.",
+        "indexed": false
+      },
+      {
+        "column_name": "CFLD_RISKR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Categorical coastal flood risk rating (e.g., Very Low, Relatively Low, Moderate, Relatively High, Very High).",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EVNTS",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Number of observed or modeled riverine flood events within the tract.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_AFREQ",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Average annual frequency of riverine flood events expected per year.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EXP_AREA",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected affected land area due to riverine flooding, measured in square meters.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EXPB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected exposure value of buildings under riverine flooding scenarios (USD).",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EXPP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected exposure value of population under riverine flooding scenarios, monetized as equivalent value of statistical life.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EXPPE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected population exposure to riverine flooding, measured as the number of people affected.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EXPA",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected land or area exposure to riverine flooding (square meters).",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EXPT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected transportation infrastructure exposure to riverine flooding, such as roads and bridges.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_HLRB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Historical loss ratio for buildings resulting from riverine flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_HLRP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Historical loss ratio for population impacts caused by riverine flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_HLRA",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Historical loss ratio for land or area damage due to riverine flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_HLRR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss for buildings caused by riverine flooding (USD).",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss for population impacts (fatalities, injuries, or VSL-adjusted) due to riverine flooding.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALPE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALA",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss for land or area value due to riverine flooding (USD).",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Total expected annual loss for riverine flooding (USD).",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALS",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss adjusted for social vulnerability under riverine flooding scenarios.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_EALR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Expected annual loss adjusted for community resilience under riverine flooding scenarios.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_ALRB",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_ALRP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_ALRA",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_ALR_NPCTL",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_RISKV",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Underlying continuous numeric riverine flood risk value used to derive the categorical rating and normalized score.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_RISKS",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Normalized riverine flood risk score ranging from 0 to 100, representing percentile rank across tracts.",
+        "indexed": false
+      },
+      {
+        "column_name": "RFLD_RISKR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Categorical riverine flood risk rating (Very Low, Low, Moderate, High, Very High).",
+        "indexed": false
+      }
+    ],
+    "sample_rows": [
+      {
+        "GEOID": "12086000719",
+        "STATE": "FL",
+        "CFLD_EVNTS": null,
+        "CFLD_AFREQ": 3.100000045851126,
+        "CFLD_EXP_AREA": 0.177928059426,
+        "CFLD_EXPB": 272048215.45956033,
+        "CFLD_EXPP": 1414.4146304201606,
+        "CFLD_EXPPE": 16407209712.873869,
+        "CFLD_EXPT": 16679257928.333431,
+        "CFLD_HLRB": 2.8530963391e-05,
+        "CFLD_HLRP": 2.3635248e-06,
+        "CFLD_HLRR": "Very Low",
+        "CFLD_EALB": 77.61797675849769,
+        "CFLD_EALP": 3.7107810749e-05,
+        "CFLD_EALPE": 430.4506046914448,
+        "CFLD_EALT": 508.06858144994254,
+        "CFLD_EALS": 78.91636595202716,
+        "CFLD_EALR": "Very Low",
+        "CFLD_ALRB": 2.42362074e-07,
+        "CFLD_ALRP": 2.5591594e-08,
+        "CFLD_ALR_NPCTL": 86.4094672044152,
+        "CFLD_RISKV": 871.4917758741229,
+        "CFLD_RISKS": 80.47561841314914,
+        "CFLD_RISKR": "Relatively Low",
+        "RFLD_EVNTS": 55.0,
+        "RFLD_AFREQ": 2.291666666666667,
+        "RFLD_EXP_AREA": 0.177917726961,
+        "RFLD_EXPB": 272048208.2060659,
+        "RFLD_EXPP": 1413.3925445298933,
+        "RFLD_EXPPE": 16395353516.54676,
+        "RFLD_EXPA": 0.0,
+        "RFLD_EXPT": 16667401724.752827,
+        "RFLD_HLRB": 0.00012406532,
+        "RFLD_HLRP": 3.70551666e-07,
+        "RFLD_HLRA": 0.014696648,
+        "RFLD_HLRR": "Very Low",
+        "RFLD_EALB": 77347.75584825707,
+        "RFLD_EALP": 0.001200225955445,
+        "RFLD_EALPE": 13922.621083161932,
+        "RFLD_EALA": 0.0,
+        "RFLD_EALT": 91270.37693141904,
+        "RFLD_EALS": 85.36298940742654,
+        "RFLD_EALR": "Relatively Moderate",
+        "RFLD_ALRB": 0.00024151830954,
+        "RFLD_ALRP": 8.27742038e-07,
+        "RFLD_ALRA": 0.0,
+        "RFLD_ALR_NPCTL": 91.36623059398265,
+        "RFLD_RISKV": 156556.38978829427,
+        "RFLD_RISKS": 89.32716548542074,
+        "RFLD_RISKR": "Relatively Moderate"
+      },
+      {
+        "GEOID": "48201432803",
+        "STATE": "TX",
+        "CFLD_EVNTS": null,
+        "CFLD_AFREQ": 0.0,
+        "CFLD_EXP_AREA": 0.0,
+        "CFLD_EXPB": 0.0,
+        "CFLD_EXPP": 0.0,
+        "CFLD_EXPPE": 0.0,
+        "CFLD_EXPT": 0.0,
+        "CFLD_HLRB": 0.001350072911009,
+        "CFLD_HLRP": 2.3635248e-06,
+        "CFLD_HLRR": "No Rating",
+        "CFLD_EALB": 0.0,
+        "CFLD_EALP": 0.0,
+        "CFLD_EALPE": 0.0,
+        "CFLD_EALT": 0.0,
+        "CFLD_EALS": 0.0,
+        "CFLD_EALR": "No Expected Annual Losses",
+        "CFLD_ALRB": 0.0,
+        "CFLD_ALRP": 0.0,
+        "CFLD_ALR_NPCTL": 0.0,
+        "CFLD_RISKV": 0.0,
+        "CFLD_RISKS": 0.0,
+        "CFLD_RISKR": "No Rating",
+        "RFLD_EVNTS": 126.0,
+        "RFLD_AFREQ": 0.0,
+        "RFLD_EXP_AREA": 0.0,
+        "RFLD_EXPB": 0.0,
+        "RFLD_EXPP": 0.0,
+        "RFLD_EXPPE": 0.0,
+        "RFLD_EXPA": 0.0,
+        "RFLD_EXPT": 0.0,
+        "RFLD_HLRB": 0.0015608168,
+        "RFLD_HLRP": 9.0197773e-07,
+        "RFLD_HLRA": 7.1618728e-05,
+        "RFLD_HLRR": "No Rating",
+        "RFLD_EALB": 0.0,
+        "RFLD_EALP": 0.0,
+        "RFLD_EALPE": 0.0,
+        "RFLD_EALA": 0.0,
+        "RFLD_EALT": 0.0,
+        "RFLD_EALS": 0.0,
+        "RFLD_EALR": "No Expected Annual Losses",
+        "RFLD_ALRB": 0.0,
+        "RFLD_ALRP": 0.0,
+        "RFLD_ALRA": 0.0,
+        "RFLD_ALR_NPCTL": 0.0,
+        "RFLD_RISKV": 0.0,
+        "RFLD_RISKS": 0.0,
+        "RFLD_RISKR": "No Rating"
+      },
+      {
+        "GEOID": "48381021606",
+        "STATE": "TX",
+        "CFLD_EVNTS": null,
+        "CFLD_AFREQ": null,
+        "CFLD_EXP_AREA": null,
+        "CFLD_EXPB": null,
+        "CFLD_EXPP": null,
+        "CFLD_EXPPE": null,
+        "CFLD_EXPT": null,
+        "CFLD_HLRB": null,
+        "CFLD_HLRP": null,
+        "CFLD_HLRR": "Not Applicable",
+        "CFLD_EALB": null,
+        "CFLD_EALP": null,
+        "CFLD_EALPE": null,
+        "CFLD_EALT": null,
+        "CFLD_EALS": null,
+        "CFLD_EALR": "Not Applicable",
+        "CFLD_ALRB": null,
+        "CFLD_ALRP": null,
+        "CFLD_ALR_NPCTL": null,
+        "CFLD_RISKV": null,
+        "CFLD_RISKS": null,
+        "CFLD_RISKR": "Not Applicable",
+        "RFLD_EVNTS": 57.0,
+        "RFLD_AFREQ": 0.0,
+        "RFLD_EXP_AREA": 0.0,
+        "RFLD_EXPB": 0.0,
+        "RFLD_EXPP": 0.0,
+        "RFLD_EXPPE": 0.0,
+        "RFLD_EXPA": 0.0,
+        "RFLD_EXPT": 0.0,
+        "RFLD_HLRB": 4.5434368e-05,
+        "RFLD_HLRP": 3.4342025e-05,
+        "RFLD_HLRA": 0.0065151379,
+        "RFLD_HLRR": "No Rating",
+        "RFLD_EALB": 0.0,
+        "RFLD_EALP": 0.0,
+        "RFLD_EALPE": 0.0,
+        "RFLD_EALA": 0.0,
+        "RFLD_EALT": 0.0,
+        "RFLD_EALS": 0.0,
+        "RFLD_EALR": "No Expected Annual Losses",
+        "RFLD_ALRB": 0.0,
+        "RFLD_ALRP": 0.0,
+        "RFLD_ALRA": 0.0,
+        "RFLD_ALR_NPCTL": 0.0,
+        "RFLD_RISKV": 0.0,
+        "RFLD_RISKS": 0.0,
+        "RFLD_RISKR": "No Rating"
+      }
+    ],
+    "_meta": "Key-based table representing the National Risk Index (NRI) dataset developed by FEMA. Provides tract-level estimates of natural hazard risk across the United States, quantifying expected losses, exposure, and composite risk scores for multiple hazard types, including Coastal Flood (CFLD) and Riverine Flood (RFLD). This dataset contains no geometry field; all joins are key-based via the 11-digit census tract GEOID.",
+    "key_identifier": [
+      "GEOID"
+    ],
+    "spatial_identifier": [],
+    "layer_category": "tract-level"
+  },
+  "schools": {
+    "file": "schools_tx_fl_la.parquet",
+    "row_count": 20523,
+    "schema": [
+      {
+        "column_name": "SCHOOL_ID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Unique identifier for each school, derived from IPEDS or NCES datasets. Used to uniquely distinguish school records within the dataset.",
+        "indexed": false
+      },
+      {
+        "column_name": "NAME",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Official name of the school. Serves as a descriptive label for reporting and visualization.",
+        "indexed": false
+      },
+      {
+        "column_name": "ADDRESS",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Street address of the school. Provides textual location information for reference or display purposes.",
+        "indexed": false
+      },
+      {
+        "column_name": "CITY",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "City in which the school is located, represented in uppercase. Used as an administrative attribute for filtering or grouping by city.",
+        "indexed": false
+      },
+      {
+        "column_name": "STATE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Two-letter U.S. state abbreviation (e.g., 'TX', 'FL', 'LA'). Used to identify the state associated with each school record.",
+        "indexed": false
+      },
+      {
+        "column_name": "ZIP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "5-digit postal ZIP code. Serves as the primary key for key-based joins with hospitals and can be used for regional aggregation or filtering.",
+        "indexed": false
+      },
+      {
+        "column_name": "LAT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Latitude coordinate in decimal degrees (WGS84). Used with LON to construct geometry for spatial joins in EPSG:4326 coordinate reference system.",
+        "indexed": false
+      },
+      {
+        "column_name": "LON",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Longitude coordinate in decimal degrees (WGS84). Used with LAT to construct spatial points for spatial joins in EPSG:4326.",
+        "indexed": false
+      },
+      {
+        "column_name": "TYPE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Categorical type of school (e.g., 'COLLEGE', 'PRIVATE_SCHOOL', 'PUBLIC_SCHOOL'). Used for classification and filtering by educational institution type.",
+        "indexed": false
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the U.S. state where the school is located. Used for filtering or aggregation by state, but not for cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "UNIQUE_ID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Synthetic unique identifier generated by concatenating STATEFP, TYPE, and SCHOOL_ID. Ensures record-level uniqueness across the combined dataset.",
+        "indexed": false
+      }
+    ],
+    "sample_rows": [
+      {
+        "SCHOOL_ID": "00537973",
+        "NAME": "OUR LADY OF LOURDES ELEMENTARY SCHOOL",
+        "ADDRESS": "345 WESTCHESTER PL",
+        "CITY": "SLIDELL",
+        "STATE": "LA",
+        "ZIP": "70458",
+        "LAT": 30.249348,
+        "LON": -89.78795199999999,
+        "TYPE": "PRIVATE_SCHOOL",
+        "STATEFP": "22",
+        "UNIQUE_ID": "22_PRIVATE_SCHOOL_00537973"
+      },
+      {
+        "SCHOOL_ID": "484347004944",
+        "NAME": "PEETE EL",
+        "ADDRESS": "1511 BELLWOOD DR",
+        "CITY": "TYLER",
+        "STATE": "TX",
+        "ZIP": "75701",
+        "LAT": 32.34082572300002,
+        "LON": -95.31708389099998,
+        "TYPE": "PUBLIC_SCHOOL",
+        "STATEFP": "48",
+        "UNIQUE_ID": "48_PUBLIC_SCHOOL_484347004944"
+      },
+      {
+        "SCHOOL_ID": "480001607239",
+        "NAME": "TEXANS CAN ACADEMY - DALLAS NORTH",
+        "ADDRESS": "9704 SKILLMAN",
+        "CITY": "DALLAS",
+        "STATE": "TX",
+        "ZIP": "75243",
+        "LAT": 32.80498842800006,
+        "LON": -96.77850864899996,
+        "TYPE": "PUBLIC_SCHOOL",
+        "STATEFP": "48",
+        "UNIQUE_ID": "48_PUBLIC_SCHOOL_480001607239"
+      }
+    ],
+    "_meta": "Point-based layer representing school facilities across Texas, Florida, and Louisiana. Each record corresponds to one educational institution, including colleges, private, and public schools. This table supports spatial joins through coordinates (LON, LAT) for point-in-polygon operations with polygon layers. ZIP serves as the primary key for key-based joins with hospitals. Geometry can be constructed dynamically using ST_Point(LON, LAT) in WGS84 (EPSG:4326).",
+    "key_identifier": [
+      "ZIP"
+    ],
+    "spatial_identifier": [
+      "LAT",
+      "LON"
+    ],
+    "layer_category": "point + ZIP-level + county-level"
+  },
+  "svi": {
+    "file": "svi_tx_fl_la.parquet",
+    "row_count": 13385,
+    "schema": [
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACT code. Serves as the primary join key linking SVI to tract-level datasets such as census_tracts, NRI, CRE, and NFIP claims.",
+        "indexed": true
+      },
+      {
+        "column_name": "ST",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "State FIPS code (numeric).",
+        "indexed": false
+      },
+      {
+        "column_name": "STATE",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Full state name.",
+        "indexed": false
+      },
+      {
+        "column_name": "ST_ABBR",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Two-letter state abbreviation (e.g., 'TX', 'FL', 'LA').",
+        "indexed": false
+      },
+      {
+        "column_name": "STCNTY",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Combined state + county FIPS code (5 digits).",
+        "indexed": false
+      },
+      {
+        "column_name": "COUNTY",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "County name.",
+        "indexed": false
+      },
+      {
+        "column_name": "FIPS",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "11-digit census tract identifier equivalent to GEOID. Included for completeness but not used for joins; GEOID is preferred.",
+        "indexed": false
+      },
+      {
+        "column_name": "LOCATION",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Text label describing tract's county and state.",
+        "indexed": false
+      },
+      {
+        "column_name": "AREA_SQMI",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Tract area in square miles (approximate).",
+        "indexed": false
+      },
+      {
+        "column_name": "E_TOTPOP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated total population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_TOTPOP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for total population estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_HU",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated number of housing units.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_HU",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for housing unit estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_HH",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated number of households.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_HH",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for household estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_POV150",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population below 150% poverty line.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_POV150",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for poverty estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_UNEMP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated unemployed population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_UNEMP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for unemployment estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_HBURD",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated households with high housing cost burden.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_HBURD",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for housing cost burden estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_NOHSDP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population without high school diploma.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_NOHSDP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for education estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_UNINSUR",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population without health insurance.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_UNINSUR",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for health insurance estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_AGE65",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population aged 65 and older.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_AGE65",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for elderly population estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_AGE17",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population aged 17 and younger.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_AGE17",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for youth population estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_DISABL",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population with disabilities.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_DISABL",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for disability estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_SNGPNT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated single-parent households.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_SNGPNT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for single-parent household estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_LIMENG",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population with limited English proficiency.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_LIMENG",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for limited English estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_MINRTY",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated minority population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_MINRTY",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for minority population estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_MUNIT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "M_MUNIT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "E_MOBILE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "M_MOBILE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "E_CROWD",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "M_CROWD",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "E_NOVEH",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated households with no vehicle available.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_NOVEH",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for no-vehicle household estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_GROUPQ",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "M_GROUPQ",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_POV150",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of population below 150% poverty line.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_POV150",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for poverty percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_UNEMP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent unemployed.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_UNEMP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for unemployment percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_HBURD",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of households with high housing cost burden.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_HBURD",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for housing cost burden percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_NOHSDP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent without high school diploma.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_NOHSDP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for education percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_UNINSUR",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent without health insurance.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_UNINSUR",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for health insurance percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_AGE65",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent aged 65 and older.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_AGE65",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for elderly percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_AGE17",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent aged 17 and younger.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_AGE17",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for youth percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_DISABL",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent with disabilities.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_DISABL",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for disability percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_SNGPNT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of single-parent households.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_SNGPNT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for single-parent households percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_LIMENG",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent with limited English.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_LIMENG",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for limited English percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_MINRTY",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of minority population.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_MINRTY",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for minority percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_MUNIT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_MUNIT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_MOBILE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_MOBILE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_CROWD",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_CROWD",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_NOVEH",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of households with no vehicle.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_NOVEH",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for no-vehicle percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_GROUPQ",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_GROUPQ",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_POV150",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_UNEMP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_HBURD",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_NOHSDP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_UNINSUR",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "SPL_THEME1",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Summary percentile rank for Theme 1: Socioeconomic Status.",
+        "indexed": false
+      },
+      {
+        "column_name": "RPL_THEME1",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Relative percentile for Theme 1 (Socioeconomic).",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_AGE65",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_AGE17",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_DISABL",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_SNGPNT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_LIMENG",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "SPL_THEME2",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Summary percentile rank for Theme 2: Household Composition & Disability.",
+        "indexed": false
+      },
+      {
+        "column_name": "RPL_THEME2",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Relative percentile for Theme 2 (Household Composition & Disability).",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_MINRTY",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "SPL_THEME3",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Summary percentile rank for Theme 3: Minority Status & Language.",
+        "indexed": false
+      },
+      {
+        "column_name": "RPL_THEME3",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Relative percentile for Theme 3 (Minority Status & Language).",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_MUNIT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_MOBILE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_CROWD",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_NOVEH",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "EPL_GROUPQ",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "SPL_THEME4",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Summary percentile rank for Theme 4: Housing & Transportation.",
+        "indexed": false
+      },
+      {
+        "column_name": "RPL_THEME4",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Relative percentile for Theme 4 (Housing & Transportation).",
+        "indexed": false
+      },
+      {
+        "column_name": "SPL_THEMES",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Overall summary percentile rank for all four SVI themes combined.",
+        "indexed": false
+      },
+      {
+        "column_name": "RPL_THEMES",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Overall relative vulnerability percentile across all themes.",
+        "indexed": false
+      },
+      {
+        "column_name": "F_POV150",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = high poverty vulnerability, 0 = otherwise).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_UNEMP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = high unemployment vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_HBURD",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = high housing cost burden).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_NOHSDP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = low education vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_UNINSUR",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = high insurance vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_THEME1",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = Theme 1 Socioeconomic high vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_AGE65",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = elderly population vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_AGE17",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = youth population vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_DISABL",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = disability vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_SNGPNT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = single-parent households vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_LIMENG",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = limited English vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_THEME2",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = Theme 2 Household & Disability high vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_MINRTY",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = minority vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_THEME3",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = Theme 3 Minority & Language high vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_MUNIT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = mobile housing vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_MOBILE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = mobile housing population vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_CROWD",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = crowded housing vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_NOVEH",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = no-vehicle households vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_GROUPQ",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = group quarters vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_THEME4",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = Theme 4 Housing & Transportation high vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "F_TOTAL",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Flag (1 = overall high vulnerability).",
+        "indexed": false
+      },
+      {
+        "column_name": "E_DAYPOP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "unknown",
+        "indexed": false
+      },
+      {
+        "column_name": "E_NOINT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population with no Internet access.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_NOINT",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for no Internet estimate.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_AFAM",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated African-American population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_AFAM",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for African-American population.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_HISP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated Hispanic population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_HISP",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for Hispanic population.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_ASIAN",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated Asian population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_ASIAN",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for Asian population.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_AIAN",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated American Indian and Alaska Native population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_AIAN",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for AIAN population.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_NHPI",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated Native Hawaiian and Pacific Islander population.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_NHPI",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for NHPI population.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_TWOMORE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population of two or more races.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_TWOMORE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for two-or-more races population.",
+        "indexed": false
+      },
+      {
+        "column_name": "E_OTHERRACE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated population of other races.",
+        "indexed": false
+      },
+      {
+        "column_name": "M_OTHERRACE",
+        "column_type": "BIGINT",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for other races population.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_NOINT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Percent of population with no Internet access.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_NOINT",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for no Internet percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_AFAM",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent African-American.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_AFAM",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for African-American percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_HISP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Percent Hispanic.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_HISP",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for Hispanic percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_ASIAN",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent Asian.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_ASIAN",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for Asian percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_AIAN",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent American Indian and Alaska Native.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_AIAN",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for AIAN percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_NHPI",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent Native Hawaiian and Pacific Islander.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_NHPI",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for NHPI percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_TWOMORE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of population of two or more races.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_TWOMORE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for two-or-more races percentage.",
+        "indexed": false
+      },
+      {
+        "column_name": "EP_OTHERRACE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Estimated percent of population of other races.",
+        "indexed": false
+      },
+      {
+        "column_name": "MP_OTHERRACE",
+        "column_type": "DOUBLE",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Margin of error for other races percentage.",
+        "indexed": false
+      }
+    ],
+    "sample_rows": [
+      {
+        "GEOID": "12105014003",
+        "ST": 12,
+        "STATE": "Florida",
+        "ST_ABBR": "FL",
+        "STCNTY": 12105,
+        "COUNTY": "Polk County",
+        "FIPS": 12105014003,
+        "LOCATION": "Census Tract 140.03; Polk County; Florida",
+        "AREA_SQMI": 1.04325918706,
+        "E_TOTPOP": 3579,
+        "M_TOTPOP": 610,
+        "E_HU": 1627,
+        "M_HU": 173,
+        "E_HH": 1450,
+        "M_HH": 191,
+        "E_POV150": 752,
+        "M_POV150": 356,
+        "E_UNEMP": 49,
+        "M_UNEMP": 43,
+        "E_HBURD": 614,
+        "M_HBURD": 217,
+        "E_NOHSDP": 247,
+        "M_NOHSDP": 154,
+        "E_UNINSUR": 464,
+        "M_UNINSUR": 233,
+        "E_AGE65": 790,
+        "M_AGE65": 181,
+        "E_AGE17": 751,
+        "M_AGE17": 329,
+        "E_DISABL": 352,
+        "M_DISABL": 167,
+        "E_SNGPNT": 63,
+        "M_SNGPNT": 63,
+        "E_LIMENG": 72,
+        "M_LIMENG": 108,
+        "E_MINRTY": 1664,
+        "M_MINRTY": 732,
+        "E_MUNIT": 135,
+        "M_MUNIT": 127,
+        "E_MOBILE": 83,
+        "M_MOBILE": 54,
+        "E_CROWD": 11,
+        "M_CROWD": 23,
+        "E_NOVEH": 133,
+        "M_NOVEH": 117,
+        "E_GROUPQ": 128,
+        "M_GROUPQ": 4,
+        "EP_POV150": 21.7,
+        "MP_POV150": 9.5,
+        "EP_UNEMP": 2.8,
+        "MP_UNEMP": 2.5,
+        "EP_HBURD": 42.3,
+        "MP_HBURD": 13.9,
+        "EP_NOHSDP": 9.8,
+        "MP_NOHSDP": 5.9,
+        "EP_UNINSUR": 13.4,
+        "MP_UNINSUR": 6.7,
+        "EP_AGE65": 22.1,
+        "MP_AGE65": 5.6,
+        "EP_AGE17": 21.0,
+        "MP_AGE17": 6.3,
+        "EP_DISABL": 10.2,
+        "MP_DISABL": 5.0,
+        "EP_SNGPNT": 4.3,
+        "MP_SNGPNT": 4.3,
+        "EP_LIMENG": 2.3,
+        "MP_LIMENG": 3.4,
+        "EP_MINRTY": 46.5,
+        "MP_MINRTY": 18.9,
+        "EP_MUNIT": 8.3,
+        "MP_MUNIT": 7.8,
+        "EP_MOBILE": 5.1,
+        "MP_MOBILE": 3.4,
+        "EP_CROWD": 0.8,
+        "MP_CROWD": 1.6,
+        "EP_NOVEH": 9.2,
+        "MP_NOVEH": 7.8,
+        "EP_GROUPQ": 3.6,
+        "MP_GROUPQ": 0.6,
+        "EPL_POV150": 0.5783,
+        "EPL_UNEMP": 0.2701,
+        "EPL_HBURD": 0.8814,
+        "EPL_NOHSDP": 0.5599,
+        "EPL_UNINSUR": 0.796,
+        "SPL_THEME1": 3.0857,
+        "RPL_THEME1": 0.6832,
+        "EPL_AGE65": 0.7773,
+        "EPL_AGE17": 0.4596,
+        "EPL_DISABL": 0.3246,
+        "EPL_SNGPNT": 0.4295,
+        "EPL_LIMENG": 0.6196,
+        "SPL_THEME2": 2.6106,
+        "RPL_THEME2": 0.5817,
+        "EPL_MINRTY": 0.6316,
+        "SPL_THEME3": 0.6316,
+        "RPL_THEME3": 0.6316,
+        "EPL_MUNIT": 0.6052,
+        "EPL_MOBILE": 0.7076,
+        "EPL_CROWD": 0.3391,
+        "EPL_NOVEH": 0.7215,
+        "EPL_GROUPQ": 0.866,
+        "SPL_THEME4": 3.2394,
+        "RPL_THEME4": 0.8739,
+        "SPL_THEMES": 9.5673,
+        "RPL_THEMES": 0.7786,
+        "F_POV150": 0,
+        "F_UNEMP": 0,
+        "F_HBURD": 0,
+        "F_NOHSDP": 0,
+        "F_UNINSUR": 0,
+        "F_THEME1": 0,
+        "F_AGE65": 0,
+        "F_AGE17": 0,
+        "F_DISABL": 0,
+        "F_SNGPNT": 0,
+        "F_LIMENG": 0,
+        "F_THEME2": 0,
+        "F_MINRTY": 0,
+        "F_THEME3": 0,
+        "F_MUNIT": 0,
+        "F_MOBILE": 0,
+        "F_CROWD": 0,
+        "F_NOVEH": 0,
+        "F_GROUPQ": 0,
+        "F_THEME4": 0,
+        "F_TOTAL": 0,
+        "E_DAYPOP": 2614,
+        "E_NOINT": 227,
+        "M_NOINT": 146,
+        "E_AFAM": 451,
+        "M_AFAM": 253,
+        "E_HISP": 1078,
+        "M_HISP": 477,
+        "E_ASIAN": 32,
+        "M_ASIAN": 38,
+        "E_AIAN": 0,
+        "M_AIAN": 15,
+        "E_NHPI": 0,
+        "M_NHPI": 15,
+        "E_TWOMORE": 35,
+        "M_TWOMORE": 49,
+        "E_OTHERRACE": 68,
+        "M_OTHERRACE": 98,
+        "EP_NOINT": 15.7,
+        "MP_NOINT": 9.1,
+        "EP_AFAM": 12.6,
+        "MP_AFAM": 7.4,
+        "EP_HISP": 30.1,
+        "MP_HISP": 9.8,
+        "EP_ASIAN": 0.9,
+        "MP_ASIAN": 1.1,
+        "EP_AIAN": 0.0,
+        "MP_AIAN": 1.4,
+        "EP_NHPI": 0.0,
+        "MP_NHPI": 1.4,
+        "EP_TWOMORE": 1.0,
+        "MP_TWOMORE": 1.4,
+        "EP_OTHERRACE": 1.9,
+        "MP_OTHERRACE": 2.8
+      },
+      {
+        "GEOID": "48201251300",
+        "ST": 48,
+        "STATE": "Texas",
+        "ST_ABBR": "TX",
+        "STCNTY": 48201,
+        "COUNTY": "Harris County",
+        "FIPS": 48201251300,
+        "LOCATION": "Census Tract 2513; Harris County; Texas",
+        "AREA_SQMI": 2.523493559742,
+        "E_TOTPOP": 6844,
+        "M_TOTPOP": 556,
+        "E_HU": 2460,
+        "M_HU": 129,
+        "E_HH": 2341,
+        "M_HH": 169,
+        "E_POV150": 663,
+        "M_POV150": 446,
+        "E_UNEMP": 312,
+        "M_UNEMP": 132,
+        "E_HBURD": 506,
+        "M_HBURD": 194,
+        "E_NOHSDP": 157,
+        "M_NOHSDP": 121,
+        "E_UNINSUR": 224,
+        "M_UNINSUR": 167,
+        "E_AGE65": 1491,
+        "M_AGE65": 343,
+        "E_AGE17": 1787,
+        "M_AGE17": 254,
+        "E_DISABL": 575,
+        "M_DISABL": 211,
+        "E_SNGPNT": 123,
+        "M_SNGPNT": 109,
+        "E_LIMENG": 14,
+        "M_LIMENG": 84,
+        "E_MINRTY": 1961,
+        "M_MINRTY": 894,
+        "E_MUNIT": 18,
+        "M_MUNIT": 26,
+        "E_MOBILE": 0,
+        "M_MOBILE": 21,
+        "E_CROWD": 0,
+        "M_CROWD": 29,
+        "E_NOVEH": 10,
+        "M_NOVEH": 16,
+        "E_GROUPQ": 4,
+        "M_GROUPQ": 2,
+        "EP_POV150": 9.7,
+        "MP_POV150": 6.5,
+        "EP_UNEMP": 9.4,
+        "MP_UNEMP": 4.2,
+        "EP_HBURD": 21.6,
+        "MP_HBURD": 8.1,
+        "EP_NOHSDP": 3.3,
+        "MP_NOHSDP": 2.6,
+        "EP_UNINSUR": 3.3,
+        "MP_UNINSUR": 2.4,
+        "EP_AGE65": 21.8,
+        "MP_AGE65": 4.9,
+        "EP_AGE17": 26.1,
+        "MP_AGE17": 3.0,
+        "EP_DISABL": 8.4,
+        "MP_DISABL": 3.2,
+        "EP_SNGPNT": 5.3,
+        "MP_SNGPNT": 4.6,
+        "EP_LIMENG": 0.2,
+        "MP_LIMENG": 1.3,
+        "EP_MINRTY": 28.7,
+        "MP_MINRTY": 12.9,
+        "EP_MUNIT": 0.7,
+        "MP_MUNIT": 1.1,
+        "EP_MOBILE": 0.0,
+        "MP_MOBILE": 2.0,
+        "EP_CROWD": 0.0,
+        "MP_CROWD": 1.2,
+        "EP_NOVEH": 0.4,
+        "MP_NOVEH": 0.7,
+        "EP_GROUPQ": 0.1,
+        "MP_GROUPQ": 0.0,
+        "EPL_POV150": 0.2206,
+        "EPL_UNEMP": 0.8465,
+        "EPL_HBURD": 0.406,
+        "EPL_NOHSDP": 0.1782,
+        "EPL_UNINSUR": 0.2246,
+        "SPL_THEME1": 1.8759,
+        "RPL_THEME1": 0.317,
+        "EPL_AGE65": 0.7655,
+        "EPL_AGE17": 0.7636,
+        "EPL_DISABL": 0.2011,
+        "EPL_SNGPNT": 0.5243,
+        "EPL_LIMENG": 0.2531,
+        "SPL_THEME2": 2.5076,
+        "RPL_THEME2": 0.5187,
+        "EPL_MINRTY": 0.4515,
+        "SPL_THEME3": 0.4515,
+        "RPL_THEME3": 0.4515,
+        "EPL_MUNIT": 0.302,
+        "EPL_MOBILE": 0.0,
+        "EPL_CROWD": 0.0,
+        "EPL_NOVEH": 0.0757,
+        "EPL_GROUPQ": 0.3692,
+        "SPL_THEME4": 0.7469,
+        "RPL_THEME4": 0.0479,
+        "SPL_THEMES": 5.5819,
+        "RPL_THEMES": 0.1877,
+        "F_POV150": 0,
+        "F_UNEMP": 0,
+        "F_HBURD": 0,
+        "F_NOHSDP": 0,
+        "F_UNINSUR": 0,
+        "F_THEME1": 0,
+        "F_AGE65": 0,
+        "F_AGE17": 0,
+        "F_DISABL": 0,
+        "F_SNGPNT": 0,
+        "F_LIMENG": 0,
+        "F_THEME2": 0,
+        "F_MINRTY": 0,
+        "F_THEME3": 0,
+        "F_MUNIT": 0,
+        "F_MOBILE": 0,
+        "F_CROWD": 0,
+        "F_NOVEH": 0,
+        "F_GROUPQ": 0,
+        "F_THEME4": 0,
+        "F_TOTAL": 0,
+        "E_DAYPOP": 9230,
+        "E_NOINT": 12,
+        "M_NOINT": 17,
+        "E_AFAM": 90,
+        "M_AFAM": 98,
+        "E_HISP": 1335,
+        "M_HISP": 538,
+        "E_ASIAN": 29,
+        "M_ASIAN": 33,
+        "E_AIAN": 48,
+        "M_AIAN": 53,
+        "E_NHPI": 0,
+        "M_NHPI": 21,
+        "E_TWOMORE": 121,
+        "M_TWOMORE": 113,
+        "E_OTHERRACE": 338,
+        "M_OTHERRACE": 347,
+        "EP_NOINT": 0.5,
+        "MP_NOINT": 0.7,
+        "EP_AFAM": 1.3,
+        "MP_AFAM": 1.4,
+        "EP_HISP": 19.5,
+        "MP_HISP": 7.2,
+        "EP_ASIAN": 0.4,
+        "MP_ASIAN": 0.5,
+        "EP_AIAN": 0.7,
+        "MP_AIAN": 0.8,
+        "EP_NHPI": 0.0,
+        "MP_NHPI": 0.7,
+        "EP_TWOMORE": 1.8,
+        "MP_TWOMORE": 1.7,
+        "EP_OTHERRACE": 4.9,
+        "MP_OTHERRACE": 5.1
+      },
+      {
+        "GEOID": "48215022011",
+        "ST": 48,
+        "STATE": "Texas",
+        "ST_ABBR": "TX",
+        "STCNTY": 48215,
+        "COUNTY": "Hidalgo County",
+        "FIPS": 48215022011,
+        "LOCATION": "Census Tract 220.11; Hidalgo County; Texas",
+        "AREA_SQMI": 2.748775582498,
+        "E_TOTPOP": 3279,
+        "M_TOTPOP": 766,
+        "E_HU": 1020,
+        "M_HU": 122,
+        "E_HH": 912,
+        "M_HH": 151,
+        "E_POV150": 1412,
+        "M_POV150": 667,
+        "E_UNEMP": 142,
+        "M_UNEMP": 120,
+        "E_HBURD": 197,
+        "M_HBURD": 152,
+        "E_NOHSDP": 1042,
+        "M_NOHSDP": 374,
+        "E_UNINSUR": 1225,
+        "M_UNINSUR": 484,
+        "E_AGE65": 301,
+        "M_AGE65": 233,
+        "E_AGE17": 886,
+        "M_AGE17": 369,
+        "E_DISABL": 419,
+        "M_DISABL": 247,
+        "E_SNGPNT": 67,
+        "M_SNGPNT": 112,
+        "E_LIMENG": 770,
+        "M_LIMENG": 290,
+        "E_MINRTY": 3236,
+        "M_MINRTY": 767,
+        "E_MUNIT": 0,
+        "M_MUNIT": 21,
+        "E_MOBILE": 157,
+        "M_MOBILE": 94,
+        "E_CROWD": 133,
+        "M_CROWD": 95,
+        "E_NOVEH": 91,
+        "M_NOVEH": 113,
+        "E_GROUPQ": 0,
+        "M_GROUPQ": 15,
+        "EP_POV150": 43.1,
+        "MP_POV150": 17.7,
+        "EP_UNEMP": 9.1,
+        "MP_UNEMP": 6.6,
+        "EP_HBURD": 21.6,
+        "MP_HBURD": 16.3,
+        "EP_NOHSDP": 59.9,
+        "MP_NOHSDP": 15.3,
+        "EP_UNINSUR": 37.4,
+        "MP_UNINSUR": 14.3,
+        "EP_AGE65": 9.2,
+        "MP_AGE65": 7.3,
+        "EP_AGE17": 27.0,
+        "MP_AGE17": 6.2,
+        "EP_DISABL": 12.8,
+        "MP_DISABL": 7.8,
+        "EP_SNGPNT": 7.3,
+        "MP_SNGPNT": 12.2,
+        "EP_LIMENG": 26.4,
+        "MP_LIMENG": 8.2,
+        "EP_MINRTY": 98.7,
+        "MP_MINRTY": 3.9,
+        "EP_MUNIT": 0.0,
+        "MP_MUNIT": 2.1,
+        "EP_MOBILE": 15.4,
+        "MP_MOBILE": 9.3,
+        "EP_CROWD": 14.5,
+        "MP_CROWD": 10.1,
+        "EP_NOVEH": 10.0,
+        "MP_NOVEH": 11.6,
+        "EP_GROUPQ": 0.0,
+        "MP_GROUPQ": 0.5,
+        "EPL_POV150": 0.9013,
+        "EPL_UNEMP": 0.8346,
+        "EPL_HBURD": 0.406,
+        "EPL_NOHSDP": 0.9983,
+        "EPL_UNINSUR": 0.9923,
+        "SPL_THEME1": 4.1325,
+        "RPL_THEME1": 0.9321,
+        "EPL_AGE65": 0.1452,
+        "EPL_AGE17": 0.8031,
+        "EPL_DISABL": 0.5075,
+        "EPL_SNGPNT": 0.6716,
+        "EPL_LIMENG": 0.9814,
+        "SPL_THEME2": 3.1088,
+        "RPL_THEME2": 0.8451,
+        "EPL_MINRTY": 0.9808,
+        "SPL_THEME3": 0.9808,
+        "RPL_THEME3": 0.9808,
+        "EPL_MUNIT": 0.0,
+        "EPL_MOBILE": 0.8549,
+        "EPL_CROWD": 0.9533,
+        "EPL_NOVEH": 0.7466,
+        "EPL_GROUPQ": 0.0,
+        "SPL_THEME4": 2.5548,
+        "RPL_THEME4": 0.6209,
+        "SPL_THEMES": 10.7769,
+        "RPL_THEMES": 0.906,
+        "F_POV150": 1,
+        "F_UNEMP": 0,
+        "F_HBURD": 0,
+        "F_NOHSDP": 1,
+        "F_UNINSUR": 1,
+        "F_THEME1": 3,
+        "F_AGE65": 0,
+        "F_AGE17": 0,
+        "F_DISABL": 0,
+        "F_SNGPNT": 0,
+        "F_LIMENG": 1,
+        "F_THEME2": 1,
+        "F_MINRTY": 1,
+        "F_THEME3": 1,
+        "F_MUNIT": 0,
+        "F_MOBILE": 0,
+        "F_CROWD": 1,
+        "F_NOVEH": 0,
+        "F_GROUPQ": 0,
+        "F_THEME4": 1,
+        "F_TOTAL": 6,
+        "E_DAYPOP": 1033,
+        "E_NOINT": 288,
+        "M_NOINT": 155,
+        "E_AFAM": 0,
+        "M_AFAM": 15,
+        "E_HISP": 3236,
+        "M_HISP": 775,
+        "E_ASIAN": 0,
+        "M_ASIAN": 15,
+        "E_AIAN": 0,
+        "M_AIAN": 15,
+        "E_NHPI": 0,
+        "M_NHPI": 15,
+        "E_TWOMORE": 0,
+        "M_TWOMORE": 15,
+        "E_OTHERRACE": 0,
+        "M_OTHERRACE": 15,
+        "EP_NOINT": 31.6,
+        "MP_NOINT": 15.2,
+        "EP_AFAM": 0.0,
+        "MP_AFAM": 1.5,
+        "EP_HISP": 98.7,
+        "MP_HISP": 1.5,
+        "EP_ASIAN": 0.0,
+        "MP_ASIAN": 1.5,
+        "EP_AIAN": 0.0,
+        "MP_AIAN": 1.5,
+        "EP_NHPI": 0.0,
+        "MP_NHPI": 1.5,
+        "EP_TWOMORE": 0.0,
+        "MP_TWOMORE": 1.5,
+        "EP_OTHERRACE": 0.0,
+        "MP_OTHERRACE": 1.5
+      }
+    ],
+    "_meta": "Key-based table representing the Social Vulnerability Index (SVI) dataset published by the CDC/ATSDR. Provides tract-level demographic, socioeconomic, housing, and mobility indicators used to measure a community's vulnerability to natural hazards and disasters. This dataset contains no geometry field; all joins are key-based via the 11-digit census tract GEOID. A FIPS field identical to GEOID exists in the source data, but GEOID is used as the canonical key in FloodSQL-Bench.",
+    "key_identifier": [
+      "GEOID"
+    ],
+    "spatial_identifier": [],
+    "layer_category": "tract-level"
+  },
+  "zcta": {
+    "file": "zcta_tx_fl_la.parquet",
+    "row_count": 5284,
+    "schema": [
+      {
+        "column_name": "GEOID",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "5-digit ZCTA identifier that usually corresponds to a USPS ZIP code (e.g., GEOID='77845' represents the area approximating ZIP code 77845). Used for display, filtering, or spatial selection, but not for key-based joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "STATEFP",
+        "column_type": "VARCHAR",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "2-digit state FIPS code identifying the state containing this ZCTA polygon. Used mainly for filtering or grouping by state, but not for cross-table joins.",
+        "indexed": true
+      },
+      {
+        "column_name": "geometry",
+        "column_type": "BLOB",
+        "null": "YES",
+        "key": null,
+        "default": null,
+        "extra": null,
+        "description": "Polygon geometry representing the ZCTA boundary, stored in OGC:CRS84. Serves as the spatial join key for polygon-based overlays with floodplain, census tracts, and county layers, as well as for point-based spatial joins with hospitals and schools. ZCTA polygons are derived from census tract boundaries and may align or slightly differ along tract edges.",
+        "indexed": true,
+        "avoid_select_star": true
+      }
+    ],
+    "sample_rows": [
+      {
+        "GEOID": "74571",
+        "STATEFP": "22",
+        "geometry": "BLOB(4525 bytes)"
+      },
+      {
+        "GEOID": "72553",
+        "STATEFP": "22",
+        "geometry": "BLOB(1277 bytes)"
+      },
+      {
+        "GEOID": "78880",
+        "STATEFP": "48",
+        "geometry": "BLOB(7229 bytes)"
+      }
+    ],
+    "_meta": "ZIP Code Tabulation Area (ZCTA) polygon layer representing U.S. postal ZIP code regions. ZCTAs are spatial constructs derived from census data and are not identical to USPS ZIP codes. This table supports spatial joins via its geometry field but is not used for key-based joins.",
+    "key_identifier": [],
+    "spatial_identifier": [
+      "geometry"
+    ],
+    "layer_category": "polygon"
+  },
+  "_global": {
+    "join_rules": {
+      "key_based": {
+        "direct": [
+          {
+            "pair": [
+              "claims.GEOID",
+              "census_tracts.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "claims.GEOID",
+              "nri.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "claims.GEOID",
+              "svi.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "claims.GEOID",
+              "cre.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "census_tracts.GEOID",
+              "nri.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "census_tracts.GEOID",
+              "svi.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "census_tracts.GEOID",
+              "cre.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "hospitals.COUNTYFIPS",
+              "county.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "hospitals.ZIP",
+              "schools.ZIP"
+            ]
+          }
+        ],
+        "concat": [
+          {
+            "pair": [
+              "LEFT(claims.GEOID,5)",
+              "county.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "LEFT(census_tracts.GEOID,5)",
+              "county.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "LEFT(nri.GEOID,5)",
+              "county.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "LEFT(svi.GEOID,5)",
+              "county.GEOID"
+            ]
+          },
+          {
+            "pair": [
+              "LEFT(cre.GEOID,5)",
+              "county.GEOID"
+            ]
+          }
+        ]
+      },
+      "spatial": {
+        "point_polygon": [
+          {
+            "pair": [
+              "ST_Point(schools.LON, schools.LAT)",
+              "census_tracts.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(schools.LON, schools.LAT)",
+              "floodplain.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(schools.LON, schools.LAT)",
+              "zcta.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(schools.LON, schools.LAT)",
+              "county.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(hospitals.LON, hospitals.LAT)",
+              "census_tracts.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(hospitals.LON, hospitals.LAT)",
+              "floodplain.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(hospitals.LON, hospitals.LAT)",
+              "zcta.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "ST_Point(hospitals.LON, hospitals.LAT)",
+              "county.geometry"
+            ]
+          }
+        ],
+        "polygon_polygon": [
+          {
+            "pair": [
+              "census_tracts.geometry",
+              "floodplain.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "census_tracts.geometry",
+              "zcta.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "floodplain.geometry",
+              "zcta.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "county.geometry",
+              "floodplain.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "county.geometry",
+              "zcta.geometry"
+            ]
+          },
+          {
+            "pair": [
+              "county.geometry",
+              "census_tracts.geometry"
+            ]
+          }
+        ]
+      }
+    },
+    "rules": {
+      "COUNTYFIPS": "Derived 5-digit county FIPS code = 2-digit STATEFP + 3-digit COUNTYFP, e.g., '48' + '201' = '48201'.",
+      "TRACT_GEOID": "11-digit census tract code = 2-digit STATEFP + 3-digit COUNTYFP + 6-digit TRACT. Used as the tract-level join key for NRI, SVI, CRE, and Claims datasets.",
+      "geometry": "All polygon geometries stored as DuckDB Spatial GEOMETRY type (WKB format, CRS=EPSG:4326, WGS84).",
+      "hospitals_geometry": "Constructed dynamically with ST_Point(LON, LAT) for spatial joins (EPSG:4326). Supports both point-in-polygon spatial joins and county-level key-based joins.",
+      "schools_geometry": "Constructed dynamically with ST_Point(LON, LAT) for spatial joins (EPSG:4326). Used only for spatial joins with polygon layers such as census_tracts, ZCTA, and floodplain.",
+      "claims_geometry": "Claims records contain tract-level GEOIDs and are used primarily in key-based joins (event-to-indicator analysis), not in direct spatial joins.",
+      "spatial_predicates": "Spatial joins use ST_Contains or ST_Intersects depending on layer semantics: point layers (schools, hospitals) vs polygon layers (tracts, floodplain, ZCTA).",
+      "NULL_values": "NULL indicates missing data, not zero (e.g., missing claim payouts or incomplete attributes)."
+    },
+    "notes": [
+      "Both GEOID LIKE '48201%' and LEFT(GEOID, 5) = '48201' can identify records whose GEOID starts with 48201. The latter is generally faster in DuckDB.",
+      "For any percentage-type fields (e.g., EP_* from SVI, PRED*_PE from CRE), add filters to remove invalid values: field IS NOT NULL AND field BETWEEN 0 AND 100.",
+      "For area-based questions, please use the original geometry data rather than data transformed by SQL functions such as ST_Transform().",
+      "RATIO vs. PERCENTAGE: A Ratio or Fraction result is typically expressed as a number between 0 and 1, while a Percentage is the ratio multiplied by 100 (e.g., Ratio = 0.25; Percentage = 25.0).",
+      "References to 'NFIP' in question text correspond to the 'claims' table, which stores National Flood Insurance Program claim-level records with tract-level GEOIDs.",
+      "For 'Top N' or 'Most common' queries, results return only the primary identifying column (e.g., county_name, tract_geoid, or RFLD_RISKR) rather than a full table with counts or values.",
+      "This design ensures list-type outputs (output_type='list(column=...)') where only the top entity names or categories are returned.",
+      "All 28 joins are explicitly enumerated under key-based (14) and spatial (14) categories.",
+      "Claims, SVI, NRI, and CRE share tract-level GEOIDs, ensuring consistent relational linkage across tract-based datasets.",
+      "Hospitals serve as point-based facility layers supporting both key-based (via COUNTYFIPS) and spatial joins. Schools, on the other hand, lack COUNTYFIPS and therefore only participate in spatial joins.",
+      "The CITY field in both datasets is stored in uppercase (e.g., 'HOUSTON', 'MIAMI', 'BATON ROUGE'), and queries must match this capitalization when filtering by city name.",
+      "ZCTA joins rely on polygon overlays rather than ZIP code text matching.",
+      "County joins are performed through derived 5-digit COUNTYFIPS identifiers (STATEFP + COUNTYFP).",
+      "Floodplain joins represent physical flood-risk overlays, while census_tracts, ZCTA, and county serve as administrative or statistical boundary layers.",
+      "Indicator tables (NRI, SVI, CRE) connect through census_tracts for consistent multi-layer analysis.",
+      "STATEFP codes follow FIPS standards: TX=48, FL=12, LA=22.",
+      "Common county FIPS examples: Harris (TX)=201, Travis (TX)=453, Bexar (TX)=029, Broward (FL)=011, Hillsborough (FL)=057, Duval (FL)=031, Jefferson (LA)=051, Caddo (LA)=017, St. Tammany (LA)=103.",
+      "When question text refers to 'In <County>, <State>', use STATEFP and COUNTYFP filters consistent with these FIPS codes.",
+      "FIPS and GEOID fields in SVI differ in type: FIPS (in SVI) is stored as BIGINT, while GEOID is stored as VARCHAR.",
+      "Always use GEOID in SVI before performing joins or applying string predicates such as LIKE '22%' to preserve leading zeros and ensure proper key matching.",
+      "Avoid casting GEOID to BIGINT, as doing so will drop leading zeros and cause mismatched joins.",
+      "Temporal filters (e.g., dateOfLoss < DATE '1990-01-01') are treated as independent single-table conditions, not as join keys. They map records along a time axis for temporal trend analysis.",
+      "Temporal averages (e.g., average claims per year) are computed by dividing the total record count by the inclusive number of years between the minimum and maximum dateOfLoss values (MAX - MIN + 1), treating the period as a continuous span rather than discrete years.",
+      "Numeric DECIMAL, BIGINT, or VARCHAR fields used in SUM, AVG, MIN, or MAX must be explicitly CAST AS DOUBLE before aggregation to ensure numeric correctness.",
+      "Columns already typed as DOUBLE (e.g., PRED0_PE, PRED3_PE, RFLD_RISKS, CFLD_RISKS, PRED12_PE, LAT, LON) should not be cast again.",
+      "DATE fields such as dateOfLoss should remain uncast and be handled natively for temporal comparison and range operations. Use DATE 'YYYY-MM-DD' literals for date filters.",
+      "For aggregation functions (SUM, AVG, MIN, MAX) applied to nullable fields, include explicit 'IS NOT NULL' filters to avoid propagation of NULLs and ensure numeric stability.",
+      "COUNT(*) is safe without NULL filtering since it counts all rows, but when measuring data completeness (e.g., missing coordinates or payouts), explicit 'IS NULL' or 'IS NOT NULL' conditions must be used.",
+      "The FLD_ZONE field includes non-flood areas such as 'X' and 'AREA NOT INCLUDED'. Queries use the condition FLD_ZONE NOT IN ('X', 'AREA NOT INCLUDED') to exclude these zones from flood-related calculations."
+    ],
+    "triple_table_notes": [
+      "Triple-table spatial-spatial queries combine three polygonal layers (e.g., floodplain, census_tracts, zcta, county) using pairwise spatial predicates. These queries are designed to test complex spatial reasoning rather than simple containment.",
+      "When multiple polygons from one layer intersect a single geometry in another layer (e.g., multiple floodplain polygons overlapping one census tract), duplication may occur in area or count-based aggregations. COUNT(DISTINCT ...) or GROUP BY keys are used to mitigate this.",
+      "Unless otherwise specified, intersection areas in triple-table queries are not geometrically unioned across multiple overlapping polygons. The results therefore represent cumulative intersection magnitudes rather than de-duplicated geometric areas.",
+      "Each table's geometry is validated prior to joining. The benchmark assumes that all geometry columns (geometry) are stored in OGC:CRS84 coordinates and are directly comparable across layers without transformation.",
+      "The floodplain layer (floodplain) serves as the primary hazard overlay, while census_tracts, zcta, and county geometries serve as administrative or contextual boundaries for multi-level spatial filtering.",
+      "Triple-table queries are classified by predicate combinations: (1) spatial–spatial–spatial (e.g., Intersects + Overlaps + Touches), (2) spatial–spatial–aggregation (e.g., area or count summaries), or (3) spatial–spatial–percentage (ratio-based metrics).",
+      "Each spatial join in a triple-table query is symmetric — reversing the order of operands (e.g., ST_Intersects(a,b) vs ST_Intersects(b,a)) produces identical results, except for directional functions like ST_Contains and ST_Within.",
+      "All triple-table spatial joins are inner joins. Rows failing any spatial predicate in the chain are excluded from the result set. No LEFT or RIGHT spatial joins are used in the benchmark.",
+      "For tract-level filtering, LEFT(t.GEOID,5)=<FIPS> ensures that only tracts belonging to the target county are included. This condition is applied after spatial predicates to minimize unnecessary join operations."
+    ],
+    "spatial_function_notes": [
+      "All area-based spatial joins assume no overlaps or boundary gaps exist in the same table, ensuring that pairwise intersections yield non-overlapping areas without double counting.",
+      "All geometries in this benchmark are first validated with ST_IsValid() and, if necessary, repaired using ST_MakeValid() before participating in any spatial operation. This ensures topological consistency and prevents execution errors such as self-intersection or ring closure issues.",
+      "ST_IsValid(geometry): Returns TRUE if the geometry is topologically valid; used to pre-filter or safeguard inputs in spatial queries.",
+      "ST_Intersects(geomA, geomB): Returns TRUE if two geometries share any portion of space — including overlapping interiors, containment, or touching boundaries. This is the most general predicate for detecting any form of spatial intersection.",
+      "ST_Touches(geomA, geomB): Returns TRUE only when two geometries share a boundary but do not overlap or contain one another. Commonly used for adjacency analysis (e.g., neighboring tracts that share edges but have no overlapping area).",
+      "ST_Overlaps(geomA, geomB): Returns TRUE when two geometries partially overlap — that is, they share some interior area but neither fully contains the other. Often used for area-based polygon-polygon relationships.",
+      "ST_Contains(geomA, geomB): Returns TRUE if geometry A completely contains geometry B (B's entire area lies inside A). Typically used for polygon-point or polygon-polygon containment checks.",
+      "ST_Within(geomA, geomB): Returns TRUE if geometry A is entirely within geometry B. It is the logical inverse of ST_Contains; both are treated as equivalent in this benchmark depending on argument order.",
+      "ST_Point(x, y): Constructs a geometry point from coordinate pairs (longitude, latitude), converting tabular features (e.g., schools, hospitals) into spatial objects for containment testing.",
+      "ST_Intersection(geomA, geomB): Produces a new geometry representing the common area or boundary shared by geomA and geomB. When combined with ST_Area, it quantifies overlap magnitude.",
+      "ST_Area(geometry): Computes the two-dimensional area of a geometry in projected coordinate units (e.g., square meters). Often applied to the result of ST_Intersection for overlap analysis.",
+      "SUM(...): Aggregates spatial measures (e.g., intersection areas or object counts) over grouped spatial entities.",
+      "GROUP BY: Aggregates results by relational or spatial keys (e.g., GEOID, FLD_ZONE, county_name) following spatial join operations.",
+      "ORDER BY ... DESC LIMIT N: Ranks spatial entities by computed metrics (e.g., area overlap, feature count) and selects the top-N results for reporting.",
+      "When multiple spatial joins are chained (e.g., f JOIN t JOIN z), each join applies independently on the intermediate geometry results. The spatial predicates do not compose automatically — a record must satisfy all join predicates simultaneously to be retained.",
+      "For triple-table queries, spatial predicates such as ST_Intersects, ST_Touches, or ST_Overlaps are applied pairwise. The final result represents the intersection of all true predicate conditions.",
+      "When computing ST_Area(ST_Intersection(...)) in a multi-table join, overlapping polygons from one layer (e.g., multiple floodplain geometries intersecting a single tract) can cause area duplication unless explicitly aggregated or unified. Use GROUP BY on the tract identifier before aggregation if duplicate areas must be avoided.",
+      "ST_Overlaps, ST_Touches, and ST_Intersects are mutually exclusive in a strict topological sense but can produce non-disjoint results when used sequentially across multiple layers. The benchmark treats them as logical filters rather than disjoint spatial categories.",
+      "Spatial joins involving point-based tables (schools, hospitals) are typically independent of polygon-polygon joins; the points must satisfy all containment predicates across polygon layers to be retained.",
+      "For mixed predicates (e.g., ST_Touches + ST_Intersects), the benchmark enforces conjunction (logical AND) semantics — a record must both touch one geometry and intersect another to qualify.",
+      "ST_XMin(geometry) / ST_XMax(geometry): Return the minimum and maximum X coordinates (longitudes) of a geometry’s bounding box. Commonly used for longitudinal filtering — for example, ST_XMax(geom) < -82 ensures the geometry lies entirely west of longitude -82.",
+      "ST_YMin(geometry) / ST_YMax(geometry): Return the minimum and maximum Y coordinates (latitudes) of a geometry’s bounding box. Useful for latitudinal filtering — for example, ST_YMin(geom) > 30 ensures the geometry lies entirely north of latitude 30.",
+      "Coordinate Reference System (CRS) note for X/Y functions: The numeric values and meaning of X/Y depend on the geometry’s CRS. When performing geographic longitude/latitude comparisons, ensure that the geometries use a geographic CRS such as OGC:CRS84 or EPSG:4326, where X represents longitude and Y represents latitude. Validate with ST_IsValid() and repair with ST_MakeValid(), and apply ST_Transform() if CRS conversion is required.",
+      "ST_Extent(geometry) / ST_Envelope(geometry): Compute the bounding rectangle of a geometry or a geometry collection. Often used together with XMin/XMax/YMin/YMax for boundary evaluation, spatial pre-filtering, or quick envelope-based comparisons."
+    ],
+    "basic_function_notes": [
+      "SELECT: The core SQL command used to retrieve data. Specifies which columns, expressions, or aggregations to return from one or more tables.",
+      "FROM: Defines the source table(s) for the query. Multiple tables can be combined using JOINs.",
+      "WHERE: Filters individual rows before aggregation, based on logical conditions (e.g., STATEFP = '48', dateOfLoss >= DATE '2000-01-01').",
+      "GROUP BY: Groups rows with identical values in specified columns into summary rows. Required for aggregate computations such as COUNT, SUM, and AVG.",
+      "HAVING: Filters grouped results after aggregation (unlike WHERE, which filters raw rows). Commonly used to retain groups meeting certain thresholds (e.g., HAVING COUNT(*) > 10).",
+      "ORDER BY ... DESC LIMIT N: Sorts the query results by one or more columns and returns the top N rows (e.g., top 5 counties by payout).",
+      "OFFSET N: Skips the first N rows of an ordered result set (e.g., OFFSET 1 to get the second-highest value).",
+      "COUNT(*): Returns the total number of rows that satisfy the query conditions; frequently used for record counts or entity totals.",
+      "COUNT(DISTINCT column): Counts unique values, avoiding duplicates (e.g., unique GEOIDs or unique floodplain polygons).",
+      "SUM(column): Computes the total sum of a numeric column (e.g., total payouts, exposure values, or loss estimates).",
+      "AVG(column): Computes the arithmetic mean of a numeric column (e.g., average risk score, mean payout).",
+      "MIN(column), MAX(column): Return the smallest or largest value within a column, often used to find earliest/largest values or geographic extremes.",
+      "Nested aggregation: Combines multiple levels of aggregation (e.g., outer AVG of county-level ratios). Useful for multi-scale statistical summaries.",
+      "CASE WHEN condition THEN result [ELSE else_result] END: Implements conditional logic inside SELECT or aggregation statements (similar to if/else). Commonly used for ratio or flag computations (e.g., proportion of water-only tracts).",
+      "COALESCE(a, b): Returns the first non-null value between a and b. Useful for replacing missing numeric or string fields.",
+      "CAST(expression AS TYPE): Converts a value to a specific SQL data type. For example, CAST(amountPaidOnBuildingClaim AS DOUBLE) ensures floating-point precision for accurate numeric operations.",
+      "ROUND(value, n): Rounds a numeric expression to n decimal places for presentation or normalization purposes.",
+      "DISTINCT: Ensures only unique values are returned in SELECT results or counted in aggregates.",
+      "LEFT(column, N): Extracts the leftmost N characters from a string. Often used to derive STATEFP (2 digits) or COUNTYFP (5 digits) from GEOID.",
+      "LIKE 'pattern%': Performs pattern matching for text fields (e.g., GEOID LIKE '22%' to filter Louisiana records).",
+      "CONCAT(a, b): Concatenates two strings. Useful for constructing GEOIDs or composite keys.",
+      "DATE 'YYYY-MM-DD': Declares a literal date constant, typically used in WHERE filters (e.g., dateOfLoss >= DATE '2020-01-01').",
+      "STRFTIME('%Y', date_column): Extracts the year portion from a date column. Used to group or rank results by year.",
+      "EXTRACT(field FROM date): Extracts a specific component such as YEAR, MONTH, or DAY from a date expression.",
+      "BETWEEN date1 AND date2: Filters rows with date values within an inclusive range.",
+      "WITH alias AS (subquery): Defines a Common Table Expression (CTE), a temporary named subquery that can be reused in the main query. Enhances readability and modular structure.",
+      "Subqueries in FROM: Allows nested aggregation or filtering before the outer query (e.g., computing county-level ratios and then averaging them).",
+      "Derived tables: Temporary result sets defined in parentheses and referenced by alias, often used for intermediate grouping logic.",
+      "IS NULL / IS NOT NULL: Tests whether a field contains missing data. Often applied to geometry fields, coordinates, or payout amounts to ensure valid aggregation.",
+      "geometry validity checks (conceptual): Although not used directly in key-based joins, valid geometries are required for spatial join tasks (e.g., ST_IsValid, ST_MakeValid, ST_Intersects).",
+      "Key-based approximations: For simplified tasks, state-level (STATEFP) or county-level (LEFT(GEOID,5)) joins are used instead of full spatial joins.",
+      "Prefix-based filtering: GEOID LIKE '48%' to identify all Texas tracts or counties.",
+      "State-level joins: Matching by STATEFP for coarse spatial associations.",
+      "County-level joins: LEFT(GEOID, 5) = COUNTYFP for finer administrative joins.",
+      "Temporal aggregation: Grouping by STRFTIME('%Y', dateOfLoss) to summarize annual claim frequencies.",
+      "Conditional proportion computation: SUM(CASE WHEN condition THEN 1 ELSE 0 END) / COUNT(*) to derive ratios of flagged records.",
+      "Top-N ranking: ORDER BY ... DESC LIMIT N to extract the most extreme values or categories.",
+      "Multi-layer derived aggregation: e.g., averaging per-county water-only tract ratios, then averaging across the state."
+    ]
+  }
+}

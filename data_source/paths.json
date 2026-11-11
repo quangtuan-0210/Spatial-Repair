@@ -1,0 +1,18 @@
+{
+  "floodsql_root": "D:/Projects/FloodSQL-Bench-main",
+  "parquet_dir": "D:/Projects/FloodSQL-Bench-main/data",
+  "tables": {
+    "census_tracts": "census_tracts_tx_fl_la.parquet",
+    "claims": "claims_tx_fl_la.parquet",
+    "county": "county_tx_fl_la.parquet",
+    "cre": "cre_tx_fl_la.parquet",
+    "floodplain": "floodplain_tx_fl_la.parquet",
+    "hospitals": "hospitals_tx_fl_la.parquet",
+    "nri": "nri_tx_fl_la.parquet",
+    "schools": "schools_tx_fl_la.parquet",
+    "svi": "svi_tx_fl_la.parquet",
+    "zcta": "zcta_tx_fl_la.parquet"
+  },
+  "benchmark": "data_source/benchmark/floodsql_443.jsonl",
+  "metadata": "data_source/metadata/metadata_parquet.json"
+}

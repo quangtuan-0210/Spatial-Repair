@@ -1,0 +1,13 @@
+# môi trường & bí mật
+.venv/
+.env
+.env.*
+!.env.example
+# python
+__pycache__/
+*.pyc
+# file tạm / cache lớn
+results/sql_cache.sqlite
+~$*.docx
+# các lệnh chạy chỉ giữ trên máy, không đưa lên git
+scripts/

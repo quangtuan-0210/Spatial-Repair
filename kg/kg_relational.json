@@ -1,0 +1,4353 @@
+{
+ "meta": {
+  "variant": "relational",
+  "n_nodes": 289,
+  "n_edges": 288,
+  "sources": [
+   "metadata_parquet.json",
+   "DuckDB Spatial docs (viết tay)"
+  ],
+  "probe_db": false
+ },
+ "nodes": [
+  {
+   "id": "table:census_tracts",
+   "type": "Table",
+   "name": "census_tracts",
+   "row_count": 13444,
+   "grain": "tract",
+   "layer": "polygon + tract-level",
+   "description": "Polygon-based spatial layer representing U.S. Census tracts, Each record corresponds to a single tract area defined by the U.S. Census Bureau. This table supports key-based joins via the 11-digit GEOID and spatial joins with polygon-based layers and point-based layers through its geometry field. "
+  },
+  {
+   "id": "col:census_tracts.GEOID",
+   "type": "Column",
+   "table": "census_tracts",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "11-digit census tract identifier composed of STATEFP, COUNTYFP, and TRACTCODE. This field serves as the primary join key for connecting tract-level datasets such as NRI, SVI, CRE, and NFIP claims, and county-level datasets such as county and schools.",
+   "role": "key"
+  },
+  {
+   "id": "col:census_tracts.STATEFP",
+   "type": "Column",
+   "table": "census_tracts",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the U.S. state containing the tract. This field is mainly used for filtering or grouping results by state (e.g., restricting queries to Texas, Florida, or Louisiana), but it does not participate in cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:census_tracts.COUNTYFP",
+   "type": "Column",
+   "table": "census_tracts",
+   "name": "COUNTYFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "3-digit county FIPS code identifying the county within a state. Used primarily for grouping or summarizing results at the county level, rather than for direct joins across tables.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:census_tracts.NAME",
+   "type": "Column",
+   "table": "census_tracts",
+   "name": "NAME",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Human-readable census tract label (e.g., 'Tract 1234.02'). This field provides a descriptive name for reporting or visualization purposes, but is not used for joins or aggregations.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:census_tracts.geometry",
+   "type": "Column",
+   "table": "census_tracts",
+   "name": "geometry",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Polygon geometry representing the spatial boundary of each census tract, stored in OGC:CRS84. This field serves as the spatial join key for overlay operations with polygon layers (floodplain, county, ZCTA) and point layers (hospitals, schools). "
+  },
+  {
+   "id": "table:claims",
+   "type": "Table",
+   "name": "claims",
+   "row_count": 1316689,
+   "grain": "claim_event",
+   "layer": "tract-level",
+   "description": "Key-based table containing National Flood Insurance Program (NFIP) flood claim records. Each record represents a single insurance claim event linked to a census tract. All joins are key-based using the 11-digit GEOID; spatial joins are not applicable. "
+  },
+  {
+   "id": "col:claims.id",
+   "type": "Column",
+   "table": "claims",
+   "name": "id",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Unique NFIP claim record identifier. Each entry corresponds to a single insurance claim in the dataset.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:claims.GEOID",
+   "type": "Column",
+   "table": "claims",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACTCODE. Serves as the primary join key for connecting to tract-level datasets such as census_tracts, NRI, SVI, and CRE, and can also be used for county-level aggregations through GEOID prefix joins.",
+   "role": "key"
+  },
+  {
+   "id": "col:claims.STATEFP",
+   "type": "Column",
+   "table": "claims",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the U.S. state where the claim originated. Used for filtering or grouping results by state, but not for cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:claims.dateOfLoss",
+   "type": "Column",
+   "table": "claims",
+   "name": "dateOfLoss",
+   "dtype": "DATE",
+   "nullable": true,
+   "description": "Date of the flood insurance claim loss event, recorded in ISO format (e.g., '2000-10-03T00:00:00'). Indicates when the flood damage occurred.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:claims.amountPaidOnBuildingClaim",
+   "type": "Column",
+   "table": "claims",
+   "name": "amountPaidOnBuildingClaim",
+   "dtype": "DECIMAL(10,2)",
+   "nullable": true,
+   "description": "Insurance payout amount (in USD) for structural building damage. Used in assessing physical exposure and structural loss severity.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:claims.amountPaidOnContentsClaim",
+   "type": "Column",
+   "table": "claims",
+   "name": "amountPaidOnContentsClaim",
+   "dtype": "DECIMAL(8,2)",
+   "nullable": true,
+   "description": "Insurance payout amount (in USD) for damage to building contents. Represents internal property losses within the insured structure.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:claims.amountPaidOnIncreasedCostOfComplianceClaim",
+   "type": "Column",
+   "table": "claims",
+   "name": "amountPaidOnIncreasedCostOfComplianceClaim",
+   "dtype": "DECIMAL(8,2)",
+   "nullable": true,
+   "description": "Insurance payout amount (in USD) for Increased Cost of Compliance (ICC). Covers expenses related to meeting post-flood elevation, relocation, or reconstruction requirements.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:claims.geometry",
+   "type": "Column",
+   "table": "claims",
+   "name": "geometry",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Point geometry representing the claim location, stored in OGC:CRS84. Although geometry is available, this table is not used for spatial joins; its joins are purely key-based via the 11-digit GEOID."
+  },
+  {
+   "id": "table:county",
+   "type": "Table",
+   "name": "county",
+   "row_count": 385,
+   "grain": "county",
+   "layer": "polygon + county-level",
+   "description": "County-level administrative polygon layer representing U.S. counties. Each record corresponds to a single county area within a state. This table supports both key-based joins via the 5-digit GEOID and spatial joins via the geometry field. "
+  },
+  {
+   "id": "col:county.GEOID",
+   "type": "Column",
+   "table": "county",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "5-digit county FIPS code composed of the 2-digit STATEFP and 3-digit COUNTYFP. Serves as the primary join key for county-level aggregations and joins with other tables such as NFIP claims, hospitals, census tracts, NRI, SIV, and CRE. Used in both direct joins and prefix-based joins derived from tract GEOIDs.",
+   "role": "key"
+  },
+  {
+   "id": "col:county.STATEFP",
+   "type": "Column",
+   "table": "county",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the U.S. state containing the county. Mainly used for filtering or grouping results by state (e.g., Texas, Florida, or Louisiana), but not for cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:county.COUNTYFP",
+   "type": "Column",
+   "table": "county",
+   "name": "COUNTYFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "3-digit county FIPS code identifying the county within its state. Used primarily for summarization or grouping within a state, but not for key-based joins across tables.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:county.NAME",
+   "type": "Column",
+   "table": "county",
+   "name": "NAME",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Official county name (e.g., 'Harris', 'Orleans', 'Palm Beach'). Used as a human-readable label in reporting or visualization outputs, but not as a join key.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:county.geometry",
+   "type": "Column",
+   "table": "county",
+   "name": "geometry",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Polygon geometry representing county boundaries, stored in OGC:CRS84. Serves as the spatial join key for overlay operations with polygon layers (floodplain, census tracts, ZCTA) and point layers (hospitals, schools). "
+  },
+  {
+   "id": "table:cre",
+   "type": "Table",
+   "name": "cre",
+   "row_count": 13444,
+   "grain": "tract",
+   "layer": "tract-level",
+   "description": "Key-based table representing the Community Resilience Estimates (CRE) dataset published by the U.S. Census Bureau. Provides tract-level measures of population resilience to natural hazards, estimating how well communities can withstand and recover from disasters. This dataset contains no geometry field; all joins are key-based via the 11-digit census tract GEOID."
+  },
+  {
+   "id": "col:cre.GEOID",
+   "type": "Column",
+   "table": "cre",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACT code. Serves as the primary join key linking CRE data to tract-level datasets such as census_tracts, NRI, SVI, and NFIP claims.",
+   "role": "key"
+  },
+  {
+   "id": "col:cre.GEO_ID",
+   "type": "Column",
+   "table": "cre",
+   "name": "GEO_ID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Full Census geographic identifier including a prefix (e.g., '1400000US12001000201'). Provided for reference only and not used in joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.STATE",
+   "type": "Column",
+   "table": "cre",
+   "name": "STATE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Full state name corresponding to the tract. Used as a descriptive field for filtering or reporting.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.COUNTY",
+   "type": "Column",
+   "table": "cre",
+   "name": "COUNTY",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "County name corresponding to the tract. Used as a descriptive attribute, not for joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.TRACT",
+   "type": "Column",
+   "table": "cre",
+   "name": "TRACT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "6-digit census tract code within a county. Not unique at the national level; the full GEOID should be used for joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.NAME",
+   "type": "Column",
+   "table": "cre",
+   "name": "NAME",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.WATER_TRACT",
+   "type": "Column",
+   "table": "cre",
+   "name": "WATER_TRACT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Flag indicating whether a census tract is composed entirely of water. A value of 1 denotes a tract with no resident population; 0 denotes tracts with land area and population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.POPUNI",
+   "type": "Column",
+   "table": "cre",
+   "name": "POPUNI",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Population universe used in tract-level resilience estimation. Represents the total number of individuals included in the CRE modeling population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED0_E",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED0_E",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated number of individuals with zero components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED0_M",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED0_M",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for PRED0_E, representing uncertainty in the estimated number of individuals with zero vulnerability components.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED0_PE",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED0_PE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Percentage of individuals with zero components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED0_PM",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED0_PM",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error (percentage points) for the percentage of individuals with zero components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED12_E",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED12_E",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated number of individuals with one or two components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED12_M",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED12_M",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for PRED12_E, representing uncertainty in the estimated number of individuals with one or two vulnerability components.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED12_PE",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED12_PE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Percentage of individuals with one or two components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED12_PM",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED12_PM",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error (percentage points) for the percentage of individuals with one or two components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED3_E",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED3_E",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated number of individuals with three or more components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED3_M",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED3_M",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for PRED3_E, representing uncertainty in the estimated number of individuals with three or more vulnerability components.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED3_PE",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED3_PE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Percentage of individuals with three or more components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:cre.PRED3_PM",
+   "type": "Column",
+   "table": "cre",
+   "name": "PRED3_PM",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error (percentage points) for the percentage of individuals with three or more components of social vulnerability.",
+   "role": "attribute"
+  },
+  {
+   "id": "table:floodplain",
+   "type": "Table",
+   "name": "floodplain",
+   "row_count": 915760,
+   "grain": "hazard_zone",
+   "layer": "polygon",
+   "description": "FEMA Flood Hazard polygon layer representing physical flood risk zones. Each record corresponds to a FEMA-defined flood hazard area. This table is spatial-only and supports spatial joins through its geometry field, but is not used for key-based joins."
+  },
+  {
+   "id": "col:floodplain.GFID",
+   "type": "Column",
+   "table": "floodplain",
+   "name": "GFID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Unique FEMA floodplain polygon identifier. Serves as an internal region identifier within the floodplain dataset, but is not used for joins across tables.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:floodplain.STATEFP",
+   "type": "Column",
+   "table": "floodplain",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the state containing the floodplain polygon. Used mainly for filtering or grouping results by state, but not for cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:floodplain.FLD_ZONE",
+   "type": "Column",
+   "table": "floodplain",
+   "name": "FLD_ZONE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "FEMA Flood Hazard Zone classification (e.g., 'AE', 'VE', 'X', 'AO'). Indicates the level and type of flood risk associated with each polygon. Commonly used for filtering or categorizing flood exposure in spatial analyses.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:floodplain.geometry",
+   "type": "Column",
+   "table": "floodplain",
+   "name": "geometry",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Polygon geometry representing FEMA flood hazard boundaries, stored in OGC:CRS84. Serves as the spatial join key for overlay operations with polygon layers (census tracts, ZCTA, county) and point layers (hospitals, schools). Used to determine which geographic regions or facilities fall within flood hazard areas."
+  },
+  {
+   "id": "table:hospitals",
+   "type": "Table",
+   "name": "hospitals",
+   "row_count": 1526,
+   "grain": "facility_point",
+   "layer": "point + ZIP-level",
+   "description": "Point-based layer representing hospital facilities across Texas, Florida, and Louisiana. Each record corresponds to a single healthcare facility. This table supports both spatial joins through coordinates (LON, LAT) and key-based joins with schools via ZIP, with county-level and tract-level datasets via the 5-digit COUNTYFIPS code, Geometry can be constructed dynamically using ST_Point(LON, LAT) in WGS84 (EPSG:4326)."
+  },
+  {
+   "id": "col:hospitals.HOSPITAL_ID",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "HOSPITAL_ID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Unique identifier for each hospital, assigned by the source dataset. Used to uniquely identify individual healthcare facilities.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.NAME",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "NAME",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Official name of the hospital. Serves as a descriptive label for reporting and visualization.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.ADDRESS",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "ADDRESS",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Street address of the hospital. Provides location context for reference or display purposes.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.CITY",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "CITY",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "City in which the hospital is located, represented in uppercase. Used as an administrative attribute for filtering or grouping by city.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.STATE",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "STATE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Two-letter U.S. state abbreviation (e.g., 'TX', 'FL', 'LA'). Used to identify the state in which the hospital operates.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.ZIP",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "ZIP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "5-digit postal ZIP code (USPS). Used for filtering or display purposes but not for spatial or key-based joins with ZCTA, since USPS ZIP codes do not align perfectly with Census ZCTA boundaries. ZIP-level relationships should instead be established through spatial joins using hospital coordinates (ST_Point(LON, LAT)) and ZCTA geometry.",
+   "role": "key"
+  },
+  {
+   "id": "col:hospitals.COUNTY",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "COUNTY",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Official name of the county where the hospital is located. Used for descriptive or reporting purposes but not for joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.COUNTYFIPS",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "COUNTYFIPS",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "5-digit county FIPS code composed of STATEFP and COUNTYFP, identifying the county associated with each hospital. Serves as the primary key for key-based joins with county-level datasetsand tract-level datasets.",
+   "role": "key"
+  },
+  {
+   "id": "col:hospitals.LAT",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "LAT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Latitude coordinate in decimal degrees (WGS84). Used with LON to construct spatial points for spatial joins in EPSG:4326."
+  },
+  {
+   "id": "col:hospitals.LON",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "LON",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Longitude coordinate in decimal degrees (WGS84). Used with LAT to construct geometry for spatial joins in EPSG:4326."
+  },
+  {
+   "id": "col:hospitals.TYPE",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "TYPE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Categorical type of hospital (e.g., 'General Acute Care', 'Psychiatric', 'Critical Access', 'Military'). Used for classification or filtering by hospital category.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.geometry",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "geometry",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Geometry not stored directly; construct via ST_Point(LON, LAT) (EPSG:4326)."
+  },
+  {
+   "id": "col:hospitals.STATEFP",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the U.S. state in which the hospital is located. Used for filtering or aggregation by state, but not for cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:hospitals.UNIQUE_ID",
+   "type": "Column",
+   "table": "hospitals",
+   "name": "UNIQUE_ID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Synthetic unique identifier generated by concatenating STATEFP, 'hospital', and HOSPITAL_ID. Ensures record-level uniqueness across the combined dataset.",
+   "role": "attribute"
+  },
+  {
+   "id": "table:nri",
+   "type": "Table",
+   "name": "nri",
+   "row_count": 13373,
+   "grain": "tract",
+   "layer": "tract-level",
+   "description": "Key-based table representing the National Risk Index (NRI) dataset developed by FEMA. Provides tract-level estimates of natural hazard risk across the United States, quantifying expected losses, exposure, and composite risk scores for multiple hazard types, including Coastal Flood (CFLD) and Riverine Flood (RFLD). This dataset contains no geometry field; all joins are key-based via the 11-digit census tract GEOID."
+  },
+  {
+   "id": "col:nri.GEOID",
+   "type": "Column",
+   "table": "nri",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACT code. Serves as the primary join key linking NRI data to tract-level datasets such as census_tracts, SVI, CRE, and NFIP claims.",
+   "role": "key"
+  },
+  {
+   "id": "col:nri.STATE",
+   "type": "Column",
+   "table": "nri",
+   "name": "STATE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Two-letter state abbreviation (e.g., 'TX', 'FL', 'LA'). Used primarily for filtering or summarization by state.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EVNTS",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EVNTS",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Number of observed or modeled coastal flood events within the tract, derived from FEMA NRI event records.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_AFREQ",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_AFREQ",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Average annual frequency of coastal flood events estimated from historical and modeled data.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EXP_AREA",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EXP_AREA",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated land area (in square meters) expected to be affected by coastal flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EXPB",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EXPB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected exposure value of buildings to coastal flooding, expressed in U.S. dollars.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EXPP",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EXPP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected exposure value of population to coastal flooding, represented as a monetized equivalent.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EXPPE",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EXPPE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected population exposure to coastal flooding, measured as the number of residents affected.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EXPT",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EXPT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected transportation asset exposure to coastal flooding, representing potential impact on roads and bridges.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_HLRB",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_HLRB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Historical loss ratio for buildings due to coastal flooding, representing the fraction of asset value lost.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_HLRP",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_HLRP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Historical loss ratio for population impacts (e.g., fatalities, injuries) due to coastal flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_HLRR",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_HLRR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EALB",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EALB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss for buildings due to coastal flooding, expressed in U.S. dollars.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EALP",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EALP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss for population due to coastal flooding, incorporating fatalities, injuries, or monetized equivalents.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EALPE",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EALPE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EALT",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EALT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EALS",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EALS",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss adjusted for social vulnerability under coastal flooding scenarios.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_EALR",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_EALR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Expected annual loss adjusted for community resilience under coastal flooding scenarios.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_ALRB",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_ALRB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_ALRP",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_ALRP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_ALR_NPCTL",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_ALR_NPCTL",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_RISKV",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_RISKV",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Continuous numeric risk value underlying the rating and score for coastal flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_RISKS",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_RISKS",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Normalized coastal flood risk score ranging from 0 to 100; higher values indicate greater relative risk.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.CFLD_RISKR",
+   "type": "Column",
+   "table": "nri",
+   "name": "CFLD_RISKR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Categorical coastal flood risk rating (e.g., Very Low, Relatively Low, Moderate, Relatively High, Very High).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EVNTS",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EVNTS",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Number of observed or modeled riverine flood events within the tract.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_AFREQ",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_AFREQ",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Average annual frequency of riverine flood events expected per year.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EXP_AREA",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EXP_AREA",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected affected land area due to riverine flooding, measured in square meters.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EXPB",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EXPB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected exposure value of buildings under riverine flooding scenarios (USD).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EXPP",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EXPP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected exposure value of population under riverine flooding scenarios, monetized as equivalent value of statistical life.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EXPPE",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EXPPE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected population exposure to riverine flooding, measured as the number of people affected.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EXPA",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EXPA",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected land or area exposure to riverine flooding (square meters).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EXPT",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EXPT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected transportation infrastructure exposure to riverine flooding, such as roads and bridges.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_HLRB",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_HLRB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Historical loss ratio for buildings resulting from riverine flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_HLRP",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_HLRP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Historical loss ratio for population impacts caused by riverine flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_HLRA",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_HLRA",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Historical loss ratio for land or area damage due to riverine flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_HLRR",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_HLRR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALB",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss for buildings caused by riverine flooding (USD).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALP",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss for population impacts (fatalities, injuries, or VSL-adjusted) due to riverine flooding.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALPE",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALPE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALA",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALA",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss for land or area value due to riverine flooding (USD).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALT",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Total expected annual loss for riverine flooding (USD).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALS",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALS",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Expected annual loss adjusted for social vulnerability under riverine flooding scenarios.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_EALR",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_EALR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Expected annual loss adjusted for community resilience under riverine flooding scenarios.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_ALRB",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_ALRB",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_ALRP",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_ALRP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_ALRA",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_ALRA",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_ALR_NPCTL",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_ALR_NPCTL",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_RISKV",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_RISKV",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Underlying continuous numeric riverine flood risk value used to derive the categorical rating and normalized score.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_RISKS",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_RISKS",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Normalized riverine flood risk score ranging from 0 to 100, representing percentile rank across tracts.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:nri.RFLD_RISKR",
+   "type": "Column",
+   "table": "nri",
+   "name": "RFLD_RISKR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Categorical riverine flood risk rating (Very Low, Low, Moderate, High, Very High).",
+   "role": "attribute"
+  },
+  {
+   "id": "table:schools",
+   "type": "Table",
+   "name": "schools",
+   "row_count": 20523,
+   "grain": "facility_point",
+   "layer": "point + ZIP-level + county-level",
+   "description": "Point-based layer representing school facilities across Texas, Florida, and Louisiana. Each record corresponds to one educational institution, including colleges, private, and public schools. This table supports spatial joins through coordinates (LON, LAT) for point-in-polygon operations with polygon layers. ZIP serves as the primary key for key-based joins with hospitals. Geometry can be constructed dynamically using ST_Point(LON, LAT) in WGS84 (EPSG:4326)."
+  },
+  {
+   "id": "col:schools.SCHOOL_ID",
+   "type": "Column",
+   "table": "schools",
+   "name": "SCHOOL_ID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Unique identifier for each school, derived from IPEDS or NCES datasets. Used to uniquely distinguish school records within the dataset.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.NAME",
+   "type": "Column",
+   "table": "schools",
+   "name": "NAME",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Official name of the school. Serves as a descriptive label for reporting and visualization.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.ADDRESS",
+   "type": "Column",
+   "table": "schools",
+   "name": "ADDRESS",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Street address of the school. Provides textual location information for reference or display purposes.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.CITY",
+   "type": "Column",
+   "table": "schools",
+   "name": "CITY",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "City in which the school is located, represented in uppercase. Used as an administrative attribute for filtering or grouping by city.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.STATE",
+   "type": "Column",
+   "table": "schools",
+   "name": "STATE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Two-letter U.S. state abbreviation (e.g., 'TX', 'FL', 'LA'). Used to identify the state associated with each school record.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.ZIP",
+   "type": "Column",
+   "table": "schools",
+   "name": "ZIP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "5-digit postal ZIP code. Serves as the primary key for key-based joins with hospitals and can be used for regional aggregation or filtering.",
+   "role": "key"
+  },
+  {
+   "id": "col:schools.LAT",
+   "type": "Column",
+   "table": "schools",
+   "name": "LAT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Latitude coordinate in decimal degrees (WGS84). Used with LON to construct geometry for spatial joins in EPSG:4326 coordinate reference system."
+  },
+  {
+   "id": "col:schools.LON",
+   "type": "Column",
+   "table": "schools",
+   "name": "LON",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Longitude coordinate in decimal degrees (WGS84). Used with LAT to construct spatial points for spatial joins in EPSG:4326."
+  },
+  {
+   "id": "col:schools.TYPE",
+   "type": "Column",
+   "table": "schools",
+   "name": "TYPE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Categorical type of school (e.g., 'COLLEGE', 'PRIVATE_SCHOOL', 'PUBLIC_SCHOOL'). Used for classification and filtering by educational institution type.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.STATEFP",
+   "type": "Column",
+   "table": "schools",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the U.S. state where the school is located. Used for filtering or aggregation by state, but not for cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:schools.UNIQUE_ID",
+   "type": "Column",
+   "table": "schools",
+   "name": "UNIQUE_ID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Synthetic unique identifier generated by concatenating STATEFP, TYPE, and SCHOOL_ID. Ensures record-level uniqueness across the combined dataset.",
+   "role": "attribute"
+  },
+  {
+   "id": "table:svi",
+   "type": "Table",
+   "name": "svi",
+   "row_count": 13385,
+   "grain": "tract",
+   "layer": "tract-level",
+   "description": "Key-based table representing the Social Vulnerability Index (SVI) dataset published by the CDC/ATSDR. Provides tract-level demographic, socioeconomic, housing, and mobility indicators used to measure a community's vulnerability to natural hazards and disasters. This dataset contains no geometry field; all joins are key-based via the 11-digit census tract GEOID. A FIPS field identical to GEOID exists in the source data, but GEOID is used as the canonical key in FloodSQL-Bench."
+  },
+  {
+   "id": "col:svi.GEOID",
+   "type": "Column",
+   "table": "svi",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "11-digit census tract GEOID composed of STATEFP, COUNTYFP, and TRACT code. Serves as the primary join key linking SVI to tract-level datasets such as census_tracts, NRI, CRE, and NFIP claims.",
+   "role": "key"
+  },
+  {
+   "id": "col:svi.ST",
+   "type": "Column",
+   "table": "svi",
+   "name": "ST",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "State FIPS code (numeric).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.STATE",
+   "type": "Column",
+   "table": "svi",
+   "name": "STATE",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Full state name.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.ST_ABBR",
+   "type": "Column",
+   "table": "svi",
+   "name": "ST_ABBR",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Two-letter state abbreviation (e.g., 'TX', 'FL', 'LA').",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.STCNTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "STCNTY",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Combined state + county FIPS code (5 digits).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.COUNTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "COUNTY",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "County name.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.FIPS",
+   "type": "Column",
+   "table": "svi",
+   "name": "FIPS",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "11-digit census tract identifier equivalent to GEOID. Included for completeness but not used for joins; GEOID is preferred.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.LOCATION",
+   "type": "Column",
+   "table": "svi",
+   "name": "LOCATION",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "Text label describing tract's county and state.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.AREA_SQMI",
+   "type": "Column",
+   "table": "svi",
+   "name": "AREA_SQMI",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Tract area in square miles (approximate).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_TOTPOP",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_TOTPOP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated total population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_TOTPOP",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_TOTPOP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for total population estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_HU",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_HU",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated number of housing units.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_HU",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_HU",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for housing unit estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_HH",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_HH",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated number of households.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_HH",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_HH",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for household estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_POV150",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_POV150",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population below 150% poverty line.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_POV150",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_POV150",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for poverty estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_UNEMP",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_UNEMP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated unemployed population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_UNEMP",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_UNEMP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for unemployment estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_HBURD",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_HBURD",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated households with high housing cost burden.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_HBURD",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_HBURD",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for housing cost burden estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_NOHSDP",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_NOHSDP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population without high school diploma.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_NOHSDP",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_NOHSDP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for education estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_UNINSUR",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_UNINSUR",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population without health insurance.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_UNINSUR",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_UNINSUR",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for health insurance estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_AGE65",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_AGE65",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population aged 65 and older.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_AGE65",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_AGE65",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for elderly population estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_AGE17",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_AGE17",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population aged 17 and younger.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_AGE17",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_AGE17",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for youth population estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_DISABL",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_DISABL",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population with disabilities.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_DISABL",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_DISABL",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for disability estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_SNGPNT",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_SNGPNT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated single-parent households.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_SNGPNT",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_SNGPNT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for single-parent household estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_LIMENG",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_LIMENG",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population with limited English proficiency.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_LIMENG",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_LIMENG",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for limited English estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_MINRTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_MINRTY",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated minority population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_MINRTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_MINRTY",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for minority population estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_MUNIT",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_MUNIT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_MUNIT",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_MUNIT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_MOBILE",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_MOBILE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_MOBILE",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_MOBILE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_CROWD",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_CROWD",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_CROWD",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_CROWD",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_NOVEH",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_NOVEH",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated households with no vehicle available.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_NOVEH",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_NOVEH",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for no-vehicle household estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_GROUPQ",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_GROUPQ",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_GROUPQ",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_GROUPQ",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_POV150",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_POV150",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of population below 150% poverty line.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_POV150",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_POV150",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for poverty percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_UNEMP",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_UNEMP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent unemployed.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_UNEMP",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_UNEMP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for unemployment percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_HBURD",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_HBURD",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of households with high housing cost burden.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_HBURD",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_HBURD",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for housing cost burden percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_NOHSDP",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_NOHSDP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent without high school diploma.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_NOHSDP",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_NOHSDP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for education percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_UNINSUR",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_UNINSUR",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent without health insurance.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_UNINSUR",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_UNINSUR",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for health insurance percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_AGE65",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_AGE65",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent aged 65 and older.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_AGE65",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_AGE65",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for elderly percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_AGE17",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_AGE17",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent aged 17 and younger.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_AGE17",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_AGE17",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for youth percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_DISABL",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_DISABL",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent with disabilities.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_DISABL",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_DISABL",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for disability percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_SNGPNT",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_SNGPNT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of single-parent households.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_SNGPNT",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_SNGPNT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for single-parent households percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_LIMENG",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_LIMENG",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent with limited English.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_LIMENG",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_LIMENG",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for limited English percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_MINRTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_MINRTY",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of minority population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_MINRTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_MINRTY",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for minority percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_MUNIT",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_MUNIT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_MUNIT",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_MUNIT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_MOBILE",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_MOBILE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_MOBILE",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_MOBILE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_CROWD",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_CROWD",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_CROWD",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_CROWD",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_NOVEH",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_NOVEH",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of households with no vehicle.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_NOVEH",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_NOVEH",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for no-vehicle percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_GROUPQ",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_GROUPQ",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_GROUPQ",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_GROUPQ",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_POV150",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_POV150",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_UNEMP",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_UNEMP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_HBURD",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_HBURD",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_NOHSDP",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_NOHSDP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_UNINSUR",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_UNINSUR",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.SPL_THEME1",
+   "type": "Column",
+   "table": "svi",
+   "name": "SPL_THEME1",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Summary percentile rank for Theme 1: Socioeconomic Status.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.RPL_THEME1",
+   "type": "Column",
+   "table": "svi",
+   "name": "RPL_THEME1",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Relative percentile for Theme 1 (Socioeconomic).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_AGE65",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_AGE65",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_AGE17",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_AGE17",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_DISABL",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_DISABL",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_SNGPNT",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_SNGPNT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_LIMENG",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_LIMENG",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.SPL_THEME2",
+   "type": "Column",
+   "table": "svi",
+   "name": "SPL_THEME2",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Summary percentile rank for Theme 2: Household Composition & Disability.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.RPL_THEME2",
+   "type": "Column",
+   "table": "svi",
+   "name": "RPL_THEME2",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Relative percentile for Theme 2 (Household Composition & Disability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_MINRTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_MINRTY",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.SPL_THEME3",
+   "type": "Column",
+   "table": "svi",
+   "name": "SPL_THEME3",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Summary percentile rank for Theme 3: Minority Status & Language.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.RPL_THEME3",
+   "type": "Column",
+   "table": "svi",
+   "name": "RPL_THEME3",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Relative percentile for Theme 3 (Minority Status & Language).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_MUNIT",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_MUNIT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_MOBILE",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_MOBILE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_CROWD",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_CROWD",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_NOVEH",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_NOVEH",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EPL_GROUPQ",
+   "type": "Column",
+   "table": "svi",
+   "name": "EPL_GROUPQ",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.SPL_THEME4",
+   "type": "Column",
+   "table": "svi",
+   "name": "SPL_THEME4",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Summary percentile rank for Theme 4: Housing & Transportation.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.RPL_THEME4",
+   "type": "Column",
+   "table": "svi",
+   "name": "RPL_THEME4",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Relative percentile for Theme 4 (Housing & Transportation).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.SPL_THEMES",
+   "type": "Column",
+   "table": "svi",
+   "name": "SPL_THEMES",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Overall summary percentile rank for all four SVI themes combined.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.RPL_THEMES",
+   "type": "Column",
+   "table": "svi",
+   "name": "RPL_THEMES",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Overall relative vulnerability percentile across all themes.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_POV150",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_POV150",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = high poverty vulnerability, 0 = otherwise).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_UNEMP",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_UNEMP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = high unemployment vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_HBURD",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_HBURD",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = high housing cost burden).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_NOHSDP",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_NOHSDP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = low education vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_UNINSUR",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_UNINSUR",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = high insurance vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_THEME1",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_THEME1",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = Theme 1 Socioeconomic high vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_AGE65",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_AGE65",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = elderly population vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_AGE17",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_AGE17",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = youth population vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_DISABL",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_DISABL",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = disability vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_SNGPNT",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_SNGPNT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = single-parent households vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_LIMENG",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_LIMENG",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = limited English vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_THEME2",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_THEME2",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = Theme 2 Household & Disability high vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_MINRTY",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_MINRTY",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = minority vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_THEME3",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_THEME3",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = Theme 3 Minority & Language high vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_MUNIT",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_MUNIT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = mobile housing vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_MOBILE",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_MOBILE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = mobile housing population vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_CROWD",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_CROWD",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = crowded housing vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_NOVEH",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_NOVEH",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = no-vehicle households vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_GROUPQ",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_GROUPQ",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = group quarters vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_THEME4",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_THEME4",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = Theme 4 Housing & Transportation high vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.F_TOTAL",
+   "type": "Column",
+   "table": "svi",
+   "name": "F_TOTAL",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Flag (1 = overall high vulnerability).",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_DAYPOP",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_DAYPOP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "unknown",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_NOINT",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_NOINT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population with no Internet access.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_NOINT",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_NOINT",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for no Internet estimate.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_AFAM",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_AFAM",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated African-American population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_AFAM",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_AFAM",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for African-American population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_HISP",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_HISP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated Hispanic population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_HISP",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_HISP",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for Hispanic population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_ASIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_ASIAN",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated Asian population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_ASIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_ASIAN",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for Asian population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_AIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_AIAN",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated American Indian and Alaska Native population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_AIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_AIAN",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for AIAN population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_NHPI",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_NHPI",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated Native Hawaiian and Pacific Islander population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_NHPI",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_NHPI",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for NHPI population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_TWOMORE",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_TWOMORE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population of two or more races.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_TWOMORE",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_TWOMORE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for two-or-more races population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.E_OTHERRACE",
+   "type": "Column",
+   "table": "svi",
+   "name": "E_OTHERRACE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Estimated population of other races.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.M_OTHERRACE",
+   "type": "Column",
+   "table": "svi",
+   "name": "M_OTHERRACE",
+   "dtype": "BIGINT",
+   "nullable": true,
+   "description": "Margin of error for other races population.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_NOINT",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_NOINT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Percent of population with no Internet access.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_NOINT",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_NOINT",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for no Internet percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_AFAM",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_AFAM",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent African-American.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_AFAM",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_AFAM",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for African-American percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_HISP",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_HISP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Percent Hispanic.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_HISP",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_HISP",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for Hispanic percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_ASIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_ASIAN",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent Asian.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_ASIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_ASIAN",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for Asian percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_AIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_AIAN",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent American Indian and Alaska Native.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_AIAN",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_AIAN",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for AIAN percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_NHPI",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_NHPI",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent Native Hawaiian and Pacific Islander.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_NHPI",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_NHPI",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for NHPI percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_TWOMORE",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_TWOMORE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of population of two or more races.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_TWOMORE",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_TWOMORE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for two-or-more races percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.EP_OTHERRACE",
+   "type": "Column",
+   "table": "svi",
+   "name": "EP_OTHERRACE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Estimated percent of population of other races.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:svi.MP_OTHERRACE",
+   "type": "Column",
+   "table": "svi",
+   "name": "MP_OTHERRACE",
+   "dtype": "DOUBLE",
+   "nullable": true,
+   "description": "Margin of error for other races percentage.",
+   "role": "attribute"
+  },
+  {
+   "id": "table:zcta",
+   "type": "Table",
+   "name": "zcta",
+   "row_count": 5284,
+   "grain": "zcta",
+   "layer": "polygon",
+   "description": "ZIP Code Tabulation Area (ZCTA) polygon layer representing U.S. postal ZIP code regions. ZCTAs are spatial constructs derived from census data and are not identical to USPS ZIP codes. This table supports spatial joins via its geometry field but is not used for key-based joins."
+  },
+  {
+   "id": "col:zcta.GEOID",
+   "type": "Column",
+   "table": "zcta",
+   "name": "GEOID",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "5-digit ZCTA identifier that usually corresponds to a USPS ZIP code (e.g., GEOID='77845' represents the area approximating ZIP code 77845). Used for display, filtering, or spatial selection, but not for key-based joins.",
+   "role": "key"
+  },
+  {
+   "id": "col:zcta.STATEFP",
+   "type": "Column",
+   "table": "zcta",
+   "name": "STATEFP",
+   "dtype": "VARCHAR",
+   "nullable": true,
+   "description": "2-digit state FIPS code identifying the state containing this ZCTA polygon. Used mainly for filtering or grouping by state, but not for cross-table joins.",
+   "role": "attribute"
+  },
+  {
+   "id": "col:zcta.geometry",
+   "type": "Column",
+   "table": "zcta",
+   "name": "geometry",
+   "dtype": "BLOB",
+   "nullable": true,
+   "description": "Polygon geometry representing the ZCTA boundary, stored in OGC:CRS84. Serves as the spatial join key for polygon-based overlays with floodplain, census tracts, and county layers, as well as for point-based spatial joins with hospitals and schools. ZCTA polygons are derived from census tract boundaries and may align or slightly differ along tract edges."
+  }
+ ],
+ "edges": [
+  {
+   "src": "table:census_tracts",
+   "dst": "col:census_tracts.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:census_tracts",
+   "dst": "col:census_tracts.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:census_tracts",
+   "dst": "col:census_tracts.COUNTYFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:census_tracts",
+   "dst": "col:census_tracts.NAME",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:census_tracts",
+   "dst": "col:census_tracts.geometry",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.id",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.dateOfLoss",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.amountPaidOnBuildingClaim",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.amountPaidOnContentsClaim",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.amountPaidOnIncreasedCostOfComplianceClaim",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:claims",
+   "dst": "col:claims.geometry",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:county",
+   "dst": "col:county.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:county",
+   "dst": "col:county.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:county",
+   "dst": "col:county.COUNTYFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:county",
+   "dst": "col:county.NAME",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:county",
+   "dst": "col:county.geometry",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.GEO_ID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.STATE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.COUNTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.TRACT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.NAME",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.WATER_TRACT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.POPUNI",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED0_E",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED0_M",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED0_PE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED0_PM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED12_E",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED12_M",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED12_PE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED12_PM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED3_E",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED3_M",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED3_PE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:cre",
+   "dst": "col:cre.PRED3_PM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:floodplain",
+   "dst": "col:floodplain.GFID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:floodplain",
+   "dst": "col:floodplain.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:floodplain",
+   "dst": "col:floodplain.FLD_ZONE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:floodplain",
+   "dst": "col:floodplain.geometry",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.HOSPITAL_ID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.NAME",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.ADDRESS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.CITY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.STATE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.ZIP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.COUNTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.COUNTYFIPS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.LAT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.LON",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.TYPE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.geometry",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:hospitals",
+   "dst": "col:hospitals.UNIQUE_ID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.STATE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EVNTS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_AFREQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EXP_AREA",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EXPB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EXPP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EXPPE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EXPT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_HLRB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_HLRP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_HLRR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EALB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EALP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EALPE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EALT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EALS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_EALR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_ALRB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_ALRP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_ALR_NPCTL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_RISKV",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_RISKS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.CFLD_RISKR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EVNTS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_AFREQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EXP_AREA",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EXPB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EXPP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EXPPE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EXPA",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EXPT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_HLRB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_HLRP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_HLRA",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_HLRR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALPE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALA",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_EALR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_ALRB",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_ALRP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_ALRA",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_ALR_NPCTL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_RISKV",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_RISKS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:nri",
+   "dst": "col:nri.RFLD_RISKR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.SCHOOL_ID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.NAME",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.ADDRESS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.CITY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.STATE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.ZIP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.LAT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.LON",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.TYPE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:schools",
+   "dst": "col:schools.UNIQUE_ID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.ST",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.STATE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.ST_ABBR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.STCNTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.COUNTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.FIPS",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.LOCATION",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.AREA_SQMI",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_TOTPOP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_TOTPOP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_HU",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_HU",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_HH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_HH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_POV150",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_POV150",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_UNEMP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_UNEMP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_HBURD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_HBURD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_NOHSDP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_NOHSDP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_UNINSUR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_UNINSUR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_AGE65",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_AGE65",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_AGE17",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_AGE17",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_DISABL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_DISABL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_SNGPNT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_SNGPNT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_LIMENG",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_LIMENG",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_MINRTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_MINRTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_MUNIT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_MUNIT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_MOBILE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_MOBILE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_CROWD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_CROWD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_NOVEH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_NOVEH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_GROUPQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_GROUPQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_POV150",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_POV150",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_UNEMP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_UNEMP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_HBURD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_HBURD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_NOHSDP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_NOHSDP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_UNINSUR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_UNINSUR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_AGE65",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_AGE65",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_AGE17",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_AGE17",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_DISABL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_DISABL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_SNGPNT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_SNGPNT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_LIMENG",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_LIMENG",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_MINRTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_MINRTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_MUNIT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_MUNIT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_MOBILE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_MOBILE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_CROWD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_CROWD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_NOVEH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_NOVEH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_GROUPQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_GROUPQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_POV150",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_UNEMP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_HBURD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_NOHSDP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_UNINSUR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.SPL_THEME1",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.RPL_THEME1",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_AGE65",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_AGE17",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_DISABL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_SNGPNT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_LIMENG",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.SPL_THEME2",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.RPL_THEME2",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_MINRTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.SPL_THEME3",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.RPL_THEME3",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_MUNIT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_MOBILE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_CROWD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_NOVEH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EPL_GROUPQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.SPL_THEME4",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.RPL_THEME4",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.SPL_THEMES",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.RPL_THEMES",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_POV150",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_UNEMP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_HBURD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_NOHSDP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_UNINSUR",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_THEME1",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_AGE65",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_AGE17",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_DISABL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_SNGPNT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_LIMENG",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_THEME2",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_MINRTY",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_THEME3",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_MUNIT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_MOBILE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_CROWD",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_NOVEH",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_GROUPQ",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_THEME4",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.F_TOTAL",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_DAYPOP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_NOINT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_NOINT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_AFAM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_AFAM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_HISP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_HISP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_ASIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_ASIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_AIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_AIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_NHPI",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_NHPI",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_TWOMORE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_TWOMORE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.E_OTHERRACE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.M_OTHERRACE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_NOINT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_NOINT",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_AFAM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_AFAM",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_HISP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_HISP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_ASIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_ASIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_AIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_AIAN",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_NHPI",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_NHPI",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_TWOMORE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_TWOMORE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.EP_OTHERRACE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:svi",
+   "dst": "col:svi.MP_OTHERRACE",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:zcta",
+   "dst": "col:zcta.GEOID",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:zcta",
+   "dst": "col:zcta.STATEFP",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "table:zcta",
+   "dst": "col:zcta.geometry",
+   "type": "HAS_COLUMN"
+  },
+  {
+   "src": "col:claims.GEOID",
+   "dst": "col:census_tracts.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:claims.GEOID",
+   "dst": "col:nri.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:claims.GEOID",
+   "dst": "col:svi.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:claims.GEOID",
+   "dst": "col:cre.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:census_tracts.GEOID",
+   "dst": "col:nri.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:census_tracts.GEOID",
+   "dst": "col:svi.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:census_tracts.GEOID",
+   "dst": "col:cre.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:hospitals.COUNTYFIPS",
+   "dst": "col:county.GEOID",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  },
+  {
+   "src": "col:hospitals.ZIP",
+   "dst": "col:schools.ZIP",
+   "type": "KEY_JOIN",
+   "transform_src": null,
+   "transform_dst": null,
+   "symmetric": true
+  }
+ ]
+}
