@@ -3,7 +3,7 @@
 generate(sql, kg) -> list[Mutant]
 Mutant: code, op (tên phép cài lỗi), sql (câu đã cài lỗi), before/after (đoạn bị đổi), note.
 Đáp án sửa đúng của mọi đột biến = SQL chuẩn ban đầu.
-Thiết kế: analysis/error_taxonomy.md
+Các mã lỗi: xem mục "Các loại lỗi" trong README.md
 """
 from dataclasses import dataclass, asdict
 import sqlglot

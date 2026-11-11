@@ -2,7 +2,7 @@
 
 check_sql(sql, kg, question=None) -> list[Finding]
 Mỗi Finding có: code (S1..S9, K1..K5, G), level ('error' = chắc chắn sai theo KG, 'warn' = đáng ngờ), msg, node (đoạn SQL).
-Các mã lỗi theo analysis/error_taxonomy.md.
+Các mã lỗi: xem mục "Các loại lỗi" trong README.md.
 """
 import re
 from dataclasses import dataclass, field

@@ -19,7 +19,7 @@ Trên SQL do Qwen3.5-122B-A10B sinh cho 443 câu FloodSQL-Bench:
 
 Kết quả đầy đủ (theo mức L0–L5, theo loại lỗi, độ trễ, token, tỷ lệ từ chối):
 `results/exp/qwen35/summary.md` (lỗi thật của LLM) và `results/exp/mut/summary.md` (1355 lỗi đột biến có nhãn).
-Độ chính xác phát hiện lỗi: `analysis/detection_eval.md`.
+Độ chính xác phát hiện lỗi trên tập có nhãn (443 SQL chuẩn + 1355 đột biến): Precision 98,6%, Recall 95,1%, F1 96,8%.
 
 ## Cách hoạt động
 
@@ -29,8 +29,21 @@ Kết quả đầy đủ (theo mức L0–L5, theo loại lỗi, độ trễ, to
 3. **Sinh ứng viên sửa** cục bộ cho từng lỗi, tìm kiếm chùm tối đa 4 bước.
 4. **Kiểm chứng**: chỉ nhận bản sửa hết lỗi theo KG và chạy được trên DuckDB; không có thì **từ chối**, giữ câu gốc.
 
-Các loại lỗi (S1–S9 không gian, K1–K5 tri thức mã/giá trị, G lỗi SQL chung): `analysis/error_taxonomy.md`.
 Thiết kế KG: `docs/kg_design.md`. Ghi chú phát hiện / sửa: `docs/detection_notes.md`, `docs/repair_notes.md`.
+
+## Các loại lỗi
+
+| Mã | Lỗi | Mã | Lỗi |
+|---|---|---|---|
+| S1 | sai vị từ không gian | K1 | sai mã vùng (bang / quận) so với câu hỏi |
+| S2 | đảo đối số Contains / Within | K2 | cắt GEOID sai độ dài |
+| S3 | đảo kinh độ / vĩ độ trong ST_Point | K3 | ép GEOID sang số (mất số 0 đầu) |
+| S4 | cột hình học thiếu hoặc rỗng | K4 | thiếu lọc miền giá trị / giá trị rác −999 |
+| S5 | nhầm diện tích phần giao với cả hình | K5 | sai chữ hoa / thường |
+| S6 | đổi hệ tọa độ / đơn vị không được yêu cầu | G | lỗi SQL chung: cột, bí danh không tồn tại |
+| S7 | thiếu lọc ST_IsValid trên hình hỏng | | |
+| S8 | nối bằng ZIP thay vì ZCTA | | |
+| S9 | đếm trùng sau phép nối không gian | | |
 
 ## Cấu trúc thư mục
 
@@ -46,7 +59,7 @@ spatialrepair/          MÃ NGUỒN
 kg/                     KG đã dựng: kg_spatial.json (834 nút), kg_relational.json (289 nút)
 data_source/            phần gốc FloodSQL-Bench: 443 câu hỏi + SQL chuẩn + metadata (không gồm file parquet)
 bench/                  kho SQL ban đầu: initial_qwen35 (LLM sinh), initial_mut (1355 đột biến có nhãn), đột biến
-analysis/               phân loại lỗi, câu đồng hạng, SQL chuẩn nghi sai, độ chính xác phát hiện
+analysis/tie_info.json  thông tin câu có kết quả đồng hạng (dùng khi chấm)
 results/exp/            kết quả 6 phương pháp trên từng kho (mỗi câu một dòng jsonl + summary.md)
 docs/                   thiết kế KG, ghi chú phát hiện và sửa
 tests/                  kiểm tra nhanh bộ phát hiện
